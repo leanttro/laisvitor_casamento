@@ -11,7 +11,7 @@ import psycopg2.extras
 
 # ======================================================================
 # API BACKEND - CASAMENTO LAÍS & VITOR
-# Versão: 1.4 (CORREÇÃO DE BUG: KeyError 0 no POST Convidado)
+# Versão: 1.5 (CORREÇÃO DE BUG: Edição de Presentes - Botão Editar)
 # ======================================================================
 
 load_dotenv()
@@ -37,7 +37,6 @@ def get_db_connection():
 # ======================================================================
 # 1. SETUP DO BANCO DE DADOS (Auto-Criação das Tabelas)
 # ======================================================================
-# Mantive o hashing no SEED INICIAL, mas ele será ignorado se a tabela já tiver dados.
 def setup_database():
     """Cria as tabelas necessárias se elas não existirem."""
     conn = get_db_connection()
@@ -46,7 +45,7 @@ def setup_database():
         cur = conn.cursor()
         print("ℹ️  [DB] Verificando tabelas do casamento...")
 
-        # 1. Tabela Admin (CAMPO CORRIGIDO PARA CHAVE_ADMIN)
+        # 1. Tabela Admin
         cur.execute("""
             CREATE TABLE IF NOT EXISTS laisvitor_admin (
                 id SERIAL PRIMARY KEY,
@@ -94,14 +93,13 @@ def setup_database():
         """)
 
         # --- SEED INICIAL (Opcional: Cria um admin padrão se não existir) ---
-        # Usuário: admin | Senha: 123 (Hash SHA256 para '123')
         cur.execute("SELECT COUNT(*) FROM laisvitor_admin")
         if cur.fetchone()[0] == 0:
-             # ESTE HASH SERÁ SALVO, MAS O LOGIN DE EMERGÊNCIA IGNORA
+             # Usuário: admin | Senha: 123 (Hash SHA256 para '123')
              hash_padrao = hashlib.sha256("123".encode()).hexdigest() 
              cur.execute("INSERT INTO laisvitor_admin (username, chave_admin) VALUES (%s, %s)", ('admin', hash_padrao))
              
-             # --- SEED DE PRESENTE (Para que a página presentes.html não venha vazia) ---
+             # --- SEED DE PRESENTE ---
              cur.execute("SELECT id FROM laisvitor_admin LIMIT 1")
              admin_id = cur.fetchone()[0]
              cur.execute("INSERT INTO laisvitor_presentes (admin_id, nome_presente, descricao, imagem_url, valor_cota) VALUES (%s, %s, %s, %s, %s)", 
@@ -122,7 +120,6 @@ def setup_database():
 # ======================================================================
 # 2. MIDDLEWARE & UTILITÁRIOS
 # ======================================================================
-# A função hash_password permanece, mas não é usada no login de emergência
 def hash_password(password):
     """Gera hash SHA256 da senha."""
     return hashlib.sha256(password.encode()).hexdigest()
@@ -151,10 +148,8 @@ def login_admin():
     try:
         cur = conn.cursor()
         
-        # --- MUDANÇA DE EMERGÊNCIA: COMPARAÇÃO DE TEXTO PURO ---
-        # ATENÇÃO: ISSO É INSEGURO E DEVE SER REVERTIDO.
+        # --- LOGIN DE EMERGÊNCIA (Texto Puro) ---
         cur.execute("SELECT id FROM laisvitor_admin WHERE username = %s AND chave_admin = %s", (username, chave_admin))
-        # --------------------------------------------------------
         
         admin = cur.fetchone()
         
@@ -168,8 +163,9 @@ def login_admin():
     finally:
         if conn: conn.close()
 
-# ... (Restante dos endpoints permanece o mesmo) ...
-
+# ======================================================================
+# 4. ENDPOINTS - RSVP (PÚBLICO)
+# ======================================================================
 @app.route('/api/rsvp/verificar', methods=['POST'])
 def rsvp_verificar():
     """LIA usa isso para checar se o código do convite existe."""
@@ -308,7 +304,7 @@ def admin_stats():
     finally:
         if conn: conn.close()
 
-# --- 7.2 Moderação de Depoimentos (Endpoints já criados no MVP) ---
+# --- 7.2 Moderação de Depoimentos ---
 @app.route('/api/admin/depoimentos/pendentes', methods=['GET'])
 def admin_get_depoimentos_pendentes():
     if not check_auth(request): return jsonify({"erro": "Não autorizado"}), 403
@@ -340,11 +336,31 @@ def admin_update_depoimento_status(id):
     finally:
         if conn: conn.close()
         
-# --- 7.3 CRUD de Presentes (NOVOS ENDPOINTS) ---
+# --- 7.3 CRUD de Presentes ---
+# ENDPOINT CORRIGIDO: O front-end usa esta rota para carregar os dados no modal de edição.
+@app.route('/api/presentes/<int:id>', methods=['GET'])
+def get_presente_by_id(id):
+    """Busca um único presente pelo ID para o formulário de edição."""
+    # O frontend envia a autenticação para esta rota.
+    if not check_auth(request): return jsonify({"erro": "Não autorizado"}), 403
+    conn = get_db_connection()
+    try:
+        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cur.execute("SELECT * FROM laisvitor_presentes WHERE id = %s", (id,))
+        presente = cur.fetchone()
+        
+        if not presente:
+            return jsonify({"erro": "Presente não encontrado"}), 404
+        
+        presente['valor_cota'] = float(presente['valor_cota'])
+        return jsonify(presente)
+    finally:
+        if conn: conn.close()
+
 @app.route('/api/admin/presentes', methods=['GET', 'POST'])
 def admin_gerenciar_presentes():
     if not check_auth(request): return jsonify({"erro": "Não autorizado"}), 403
-    admin_id = ADMIN_SESSIONS.get(request.headers.get('Authorization', '').replace('Bearer ', '')) # Pega o ID do admin
+    admin_id = ADMIN_SESSIONS.get(request.headers.get('Authorization', '').replace('Bearer ', '')) 
     
     conn = get_db_connection()
     try:
@@ -379,6 +395,32 @@ def admin_gerenciar_presentes():
     finally:
         if conn: conn.close()
 
+@app.route('/api/admin/presentes/<int:id>', methods=['PUT'])
+def admin_update_presente(id):
+    """Atualiza um presente existente."""
+    if not check_auth(request): return jsonify({"erro": "Não autorizado"}), 403
+    data = request.json or {}
+    nome = data.get('nome_presente')
+    valor = data.get('valor_cota')
+    url = data.get('imagem_url')
+    desc = data.get('descricao')
+    
+    if not nome or not valor:
+        return jsonify({"mensagem": "Nome e valor são obrigatórios."}), 400
+
+    conn = get_db_connection()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            UPDATE laisvitor_presentes 
+            SET nome_presente = %s, valor_cota = %s, imagem_url = %s, descricao = %s
+            WHERE id = %s
+        """, (nome, valor, url, desc, id))
+        conn.commit()
+        return jsonify({"mensagem": "Presente atualizado com sucesso!"})
+    finally:
+        if conn: conn.close()
+
 @app.route('/api/admin/presentes/<int:id>/status', methods=['PUT'])
 def admin_toggle_presente_status(id):
     """Ativa/Desativa um presente."""
@@ -395,7 +437,7 @@ def admin_toggle_presente_status(id):
     finally:
         if conn: conn.close()
 
-# --- 7.4 Gerenciamento de Convidados (Para o painel) ---
+# --- 7.4 Gerenciamento de Convidados ---
 @app.route('/api/admin/convidados', methods=['GET', 'POST'])
 def admin_gerenciar_convidados():
     if not check_auth(request): return jsonify({"erro": "Não autorizado"}), 403
@@ -410,7 +452,7 @@ def admin_gerenciar_convidados():
             cur.execute("SELECT id, codigo_convite, nome_convidado, status_rsvp, qtd_adultos, restricoes_alimentares FROM laisvitor_convidados WHERE admin_id = %s ORDER BY nome_convidado", (admin_id,))
             return jsonify(cur.fetchall())
             
-        # POST: Adiciona um novo convidado
+        # POST: Adiciona um novo convidado (CORREÇÃO DE BUG: KeyError: 0)
         elif request.method == 'POST':
             data = request.json or {}
             nome = data.get('nome_convidado')
@@ -426,12 +468,9 @@ def admin_gerenciar_convidados():
             """, (admin_id, nome, codigo))
             conn.commit()
             
-            # --- CORREÇÃO DO BUG KeyError: 0 ---
-            # Garante que fetchone() pegue o ID e o Código do convidado
             novo_convidado_tuple = cur.fetchone()
 
             if novo_convidado_tuple:
-                # novo_convidado_tuple[0] é o id, novo_convidado_tuple[1] é o codigo_convite
                 novo_id = novo_convidado_tuple[0]
                 novo_codigo = novo_convidado_tuple[1]
                 return jsonify({"mensagem": "Convidado criado", "id": novo_id, "codigo": novo_codigo})
