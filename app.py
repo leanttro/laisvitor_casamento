@@ -11,7 +11,7 @@ import psycopg2.extras
 
 # ======================================================================
 # API BACKEND - CASAMENTO LAÍS & VITOR
-# Versão: 1.3 (CORREÇÃO DE EMERGÊNCIA: DESATIVA HASH NO LOGIN)
+# Versão: 1.4 (CORREÇÃO DE BUG: KeyError 0 no POST Convidado)
 # ======================================================================
 
 load_dotenv()
@@ -425,7 +425,19 @@ def admin_gerenciar_convidados():
                 VALUES (%s, %s, %s) RETURNING id, codigo_convite
             """, (admin_id, nome, codigo))
             conn.commit()
-            return jsonify({"mensagem": "Convidado criado", "id": cur.fetchone()[0], "codigo": codigo})
+            
+            # --- CORREÇÃO DO BUG KeyError: 0 ---
+            # Garante que fetchone() pegue o ID e o Código do convidado
+            novo_convidado_tuple = cur.fetchone()
+
+            if novo_convidado_tuple:
+                # novo_convidado_tuple[0] é o id, novo_convidado_tuple[1] é o codigo_convite
+                novo_id = novo_convidado_tuple[0]
+                novo_codigo = novo_convidado_tuple[1]
+                return jsonify({"mensagem": "Convidado criado", "id": novo_id, "codigo": novo_codigo})
+            else:
+                return jsonify({"mensagem": "Erro interno ao obter ID do convidado."}), 500
+            
     finally:
         if conn: conn.close()
 
