@@ -3,13 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- 1. Metadados Atualizados -->
     <title>Laís & Vitor | Nosso Casamento</title>
     <meta name="description" content="Bem-vindo ao site do nosso casamento. Compartilhe esse momento conosco.">
-    <!-- Importação da Font Awesome (Necessária para o ícone de coração) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- Novas Fontes: Cormorant Garamond e Raleway -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1524,12 +1521,9 @@
                     <li><a href="#historia">Nossa História</a></li>
                     <li><a href="#depoimentos">Recados</a></li>
                     <li><a href="#detalhes">Detalhes</a></li>
-                    <!-- LINKS ADICIONADOS -->
                     <li><a href="presentes.html">Lista de Presentes</a></li>
-                    <!-- FASE 1: Link Admin corrigido para laisvitor_admin.html -->
                     <li><a href="laisvitor_admin.html">Noivos (Admin)</a></li> 
-                    <!-- FIM LINKS ADICIONADOS -->
-                </ul >
+                    </ul >
             </nav>
             <button class="menu-toggle" id="menu-toggle" aria-label="Abrir menu">
                 <span class="bar"></span>
@@ -1540,13 +1534,10 @@
     </header>
 
     <main>
-        <!-- 2. Seção Hero com Carrossel Atualizada -->
         <section id="inicio">
-            <!-- Container para os Corações -->
             <div class="heart-container" id="heart-container"></div>
 
             <div class="hero-carousel">
-                <!-- REVERTIDO PARA CARROSSEL ORIGINAL DE 3 SLIDES -->
                 <div class="hero-slide active" style="background-image: url('hero1.png');"></div>
                 <div class="hero-slide" style="background-image: url('hero2.png');"></div>
                 <div class="hero-slide" style="background-image: url('hero3.png');"></div>
@@ -1561,26 +1552,22 @@
             </div>
         </section>
 
-        <!-- 3. Seção de Direcionamento Atualizada -->
         <section id="direcionamento">
             <div class="direction-grid">
-                <!-- Card 1: Detalhes do Evento -->
                 <div class="direction-card" style="background-image: url('dire1.png');">
                     <div class="direction-card-content">
                         <h3>Detalhes do Evento</h3>
                         <p>Veja o endereço, horário e o traje recomendado para celebrar conosco.</p>
                         <div class="direction-card-buttons">
-                            <button class="btn btn-accent" onclick="document.getElementById('chatbotButton').click()">Ver Detalhes</button>
+                            <a href="#detalhes" class="btn btn-accent" style="text-decoration: none;">Ver Detalhes</a>
                         </div>
                     </div>
                 </div>
-                <!-- Card 2: Lista de Presentes -->
                 <div class="direction-card" style="background-image: url('dire2.png');">
                     <div class="direction-card-content">
                         <h3>Lista de Presentes</h3>
                         <p>Sua presença é o nosso maior presente. Se desejar nos mimar, veja nossa lista de presentes virtual.</p>
                         <div class="direction-card-buttons">
-                            <!-- LINK CORRIGIDO: Agora leva para a página presentes.html -->
                             <a href="presentes.html" class="btn btn-outline" style="text-decoration: none;">Acessar Lista de Presentes</a>
                         </div>
                     </div>
@@ -1588,7 +1575,6 @@
             </div>
         </section>
 
-        <!-- 1. Bloco de HTML (Nossa História) - INSERIDO AQUI -->
         <section id="historia">
             <div class="container">
                 <div class="section-title">
@@ -1642,7 +1628,6 @@
             </div>
         </section>
 
-        <!-- 1. Bloco de HTML (Seção Recados/Depoimentos) - INSERIDO AQUI -->
         <section id="depoimentos">
             <div class="container">
                 <div class="section-title">
@@ -1652,7 +1637,7 @@
 
                 <div class="carousel-wrapper">
                     <button class="carousel-btn prev" id="carousel-prev" aria-label="Recado anterior">
-                        &lt;
+                        <
                     </button>
                     
                     <div class="carousel-container" id="carousel-container">
@@ -1660,11 +1645,10 @@
                         </div>
                     
                     <button class="carousel-btn next" id="carousel-next" aria-label="Próximo recado">
-                        &gt;
+                        >
                     </button>
                 </div>
 
-                <!-- FASE 1: Formulário de Recados -->
                 <div class="depoimento-form-wrapper">
                     <h3>Deixe sua Mensagem para os Noivos</h3>
                     <form id="depoimento-form">
@@ -1677,7 +1661,6 @@
                             <textarea id="mensagem" name="mensagem" rows="4" required maxlength="500"></textarea>
                         </div>
                         
-                        <!-- Mensagens de Status (Ocultas por padrão) -->
                         <div id="depoimento-error" class="status-message error"></div>
                         <div id="depoimento-success" class="status-message success"></div>
                         
@@ -1688,7 +1671,6 @@
             </div>
         </section>
         
-        <!-- 1. Bloco de HTML (Detalhes do Evento) - INSERIDO AQUI -->
         <section id="detalhes">
             <div class="container">
                 <div class="section-title">
@@ -1763,33 +1745,26 @@
 
     </main>
     
-    <!-- 2. Bloco de HTML (Estrutura do Modal Depoimentos) - INSERIDO AQUI -->
     <div id="depoimento-modal" class="modal-overlay">
         <div class="modal-content">
-            <button class="modal-close" id="modal-close" aria-label="Fechar modal">&times;</button>
+            <button class="modal-close" id="modal-close" aria-label="Fechar modal">×</button>
             <p id="modal-texto"></p>
             <h4 id="modal-nome"></h4>
             <span id="modal-data"></span>
         </div>
     </div>
     
-    <!-- ======================================================== -->
-    <!-- --- CHATBOT LIA --- -->
-    <!-- ======================================================== -->
     <div class="floating-chatbot">
         <div id="chatbotButtonContainer">
              <div class="chatbot-minimized-icon" id="minimizedIcon" aria-label="Abrir Chatbot">
-                <!-- SUBSTITUÍDO: Ícone de robô por imagem do casal -->
                 <img src="casal.png" alt="Foto do Casal" class="chatbot-icon-img">
             </div>
-            <!-- Preview com Novo Nome e Mensagem -->
             <div class="chatbot-preview-button" id="chatbotButton" aria-label="Abrir LIA">
                 <button class="preview-close" id="previewClose" aria-label="Minimizar Preview">
                     <i class="fas fa-times"></i>
                 </button>
                 <div class="preview-header">
                     <div class="preview-avatar">
-                        <!-- SUBSTITUÍDO: Ícone de robô por imagem do casal -->
                         <img src="casal.png" alt="Foto do Casal" class="chatbot-icon-img">
                     </div>
                     <div class="preview-info">
@@ -1803,11 +1778,9 @@
             </div>
         </div>
 
-        <!-- Janela Principal do Chat com Novo Nome e Título -->
         <div class="chatbot-window" id="chatbotWindow">
             <div class="chatbot-header">
                 <div class="chatbot-header-avatar">
-                    <!-- SUBSTITUÍDO: Ícone de robô por imagem do casal -->
                     <img src="casal.png" alt="Foto do Casal" class="chatbot-icon-img">
                 </div>
                 <div class="chatbot-header-info">
@@ -1820,8 +1793,7 @@
             </div>
 
             <div class="chatbot-messages" id="chatbotMessages">
-                <!-- Mensagem inicial inserida via JS -->
-            </div>
+                </div>
 
             <div class="chatbot-input-area">
                 <input 
@@ -1837,18 +1809,13 @@
             </div>
         </div>
     </div>
-    <!-- --- FIM DO HTML DO CHATBOT --- -->
-
-
-    <!-- Rodapé -->
     <footer>
         <div class="container">
             <div class="social-links">
-                <!-- SUBSTITUIÇÃO CONFORME SOLICITADO -->
                 <a href="http://wa.me/5511976232235" class="whatsapp" target="_blank">
                     Falar com os Noivos</a>
             </div>
-            <p>&copy; www.LEANTTRO.com</p>
+            <p>© www.LEANTTRO.com</p>
         </div>
     </footer>
 
@@ -2283,7 +2250,7 @@
                     response = "Você quer acessar o Painel de Controle? Por favor, use este link: <a href='laisvitor_admin.html'>**[Painel dos Noivos]**</a>. Lembre-se que é necessário login e senha.";
                 } else {
                     response = "Desculpe, não entendi essa pergunta. Tente perguntar sobre **RSVP**, **Local**, **Traje** ou **Lista de Presentes**.";
-                    suggested = ["Confirmar Presença", "Perguntas Frequentes", "Lista de Presentes"];
+                    suggested = ["Confirmar Presença", "Lista de Presentes"];
                 }
                 addMessage(response, false, suggested);
             }
