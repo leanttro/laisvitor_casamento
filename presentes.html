@@ -68,7 +68,11 @@
         .logo { font-family: var(--font-heading); font-size: 1.5rem; font-weight: 700; color: var(--accent-rosa); }
         nav ul { display: flex; list-style: none; gap: 2rem; }
         nav a { color: var(--text-secondary); font-weight: 500; padding: 0.5rem 0; border-bottom: 2px solid transparent; }
-        nav a:hover, nav a.active { color: var(--text-primary); border-bottom-color: var(--accent-vinho); }
+        
+        /* Ajuste crucial na navegação para páginas externas */
+        nav a:hover { color: var(--text-primary); border-bottom-color: var(--accent-vinho); }
+        nav a.active { color: var(--text-primary); border-bottom-color: var(--accent-vinho); }
+        
         .menu-toggle { display: none; flex-direction: column; justify-content: space-around; width: 24px; height: 24px; background: transparent; border: none; cursor: pointer; }
         .menu-toggle .bar { width: 100%; height: 2px; background-color: var(--text-primary); }
 
@@ -207,7 +211,9 @@
                 <ul id="nav-menu">
                     <li><a href="index.html">Início</a></li>
                     <li><a href="index.html#historia">Nossa História</a></li>
+                    <li><a href="index.html#depoimentos">Recados</a></li>
                     <li><a href="index.html#detalhes">Detalhes</a></li>
+                    <!-- CORREÇÃO: Link da lista de presentes está ativo nesta página -->
                     <li><a href="presentes.html" class="active">Lista de Presentes</a></li>
                 </ul>
             </nav>
@@ -309,6 +315,8 @@
                         else if (lowerName.includes('viagem') || lowerName.includes('lua de mel') || lowerName.includes('hotel')) iconClass = 'fa-plane';
                         else if (lowerName.includes('spa') || lowerName.includes('massagem')) iconClass = 'fa-spa';
                         else if (lowerName.includes('brinde') || lowerName.includes('bebida')) iconClass = 'fa-wine-glass-alt';
+                        else if (lowerName.includes('casa') || lowerName.includes('eletro')) iconClass = 'fa-house-chimney'; // Adicionado para melhor cobertura
+
 
                         const card = document.createElement('div');
                         card.className = 'gift-card';
@@ -318,7 +326,7 @@
                                 <h3 class="gift-title">${gift.nome_presente}</h3>
                                 <p class="gift-description">${gift.descricao || 'Um presente especial para os noivos.'}</p>
                                 <div class="gift-price">${valorFormatado}</div>
-                                <button class="btn-gift" onclick="triggerChatGift('${gift.nome_presente}', '${valorFormatado}')">Presentear</button>
+                                <button class="btn-gift" onclick="triggerChatGift('${gift.nome_presente}', '${gift.valor_cota}')">Presentear</button>
                             </div>
                         `;
                         grid.appendChild(card);
@@ -402,12 +410,13 @@
                 }
                 // Pequeno delay para garantir que a janela abriu antes de mandar a mensagem
                 setTimeout(() => {
-                    addMessage(`Olá LIA! Gostaria de presentear os noivos com: **${giftName}** (${giftValue}). Como faço?`, true);
+                    // Aqui usamos o valor cru do giftValue para a LIA poder usar em cálculos futuros (se necessário)
+                    addMessage(`Olá LIA! Gostaria de presentear os noivos com: **${giftName}** (R$ ${parseFloat(giftValue).toFixed(2)}). Como faço?`, true);
                     showTypingIndicator();
                     setTimeout(() => {
                         removeTypingIndicator();
-                        // Substitua a chave PIX e o telefone real aqui
-                        addMessage(`Que gesto lindo! 🥰<br><br>Para presentear com **${giftName}**, você pode fazer um PIX para a chave dos noivos:<br><br>🔑 **(11) 99999-9999** (Celular)<br><br>Depois, é só enviar o comprovante por aqui ou no WhatsApp deles. Muito obrigada pelo carinho!`, false);
+                        // MENSAGEM LIA: Resposta corrigida e profissional (sem número fixo)
+                        addMessage(`Que gesto lindo! 🥰<br><br>Para presentear com **${giftName}**, você pode fazer um PIX. Por favor, digite **'PIX'** no chat para a LIA buscar a chave de pagamento para você.`, false);
                     }, 1500);
                 }, 500);
             };
@@ -420,14 +429,18 @@
                 const messageDiv = document.createElement('div');
                 messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
                 let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+                // Usando a imagem do casal no avatar do bot e user para manter o estilo
+                const avatarImgSrc = 'casal.png'; 
+                const avatarHtml = `<div class="message-avatar"><img src="${avatarImgSrc}" alt="${isUser ? 'Você' : 'LIA'}" class="chatbot-icon-img"></div>`;
+                
                 conversationHistory.push({ role: isUser ? 'user' : 'bot', text: text, time: getCurrentTime() });
-                messageDiv.innerHTML = `<div class="message-avatar"><i class="fas fa-${isUser ? 'user' : 'robot'}"></i></div><div class="message-content"><div class="message-bubble">${formattedText}</div><div class="message-time">${getCurrentTime()}</div></div>`;
+                messageDiv.innerHTML = `${avatarHtml}<div class="message-content"><div class="message-bubble">${formattedText}</div><div class="message-time">${getCurrentTime()}</div></div>`;
                 chatbotMessages.appendChild(messageDiv);
                 chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
             }
             function showTypingIndicator() {
                 const typingDiv = document.createElement('div'); typingDiv.className = 'message bot typing-message'; typingDiv.id = 'typing-indicator';
-                typingDiv.innerHTML = `<div class="message-avatar"><i class="fas fa-robot"></i></div><div class="message-content"><div class="message-bubble"><div class="typing-indicator"><span></span><span></span><span></span></div></div></div>`;
+                typingDiv.innerHTML = `<div class="message-avatar"><img src="casal.png" alt="LIA" class="chatbot-icon-img"></div><div class="message-content"><div class="message-bubble"><div class="typing-indicator"><span></span><span></span><span></span></div></div></div>`;
                 chatbotMessages.appendChild(typingDiv); chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
             }
             function removeTypingIndicator() { const typingDiv = document.getElementById('typing-indicator'); if (typingDiv) typingDiv.remove(); }
@@ -436,9 +449,14 @@
                 addMessage(text, true); chatbotInput.value = ''; chatbotSend.disabled = true; showTypingIndicator();
                 setTimeout(() => { removeTypingIndicator(); addMessage(getBotResponse(text), false); chatbotSend.disabled = false; chatbotInput.focus(); }, 1500);
             }
+            
+            // --- CÉREBRO SIMPLES PARA PRESENTES ---
             function getBotResponse(text) {
                 const lower = text.toLowerCase();
-                if (lower.includes('pix') || lower.includes('pagar') || lower.includes('como funciona')) return "É super simples! Nossa lista é virtual. Você escolhe o presente simbólico e o valor é transferido via PIX para os noivos usarem na Lua de Mel ou na casa nova. A chave PIX é: **(11) 99999-9999**.";
+                if (lower.includes('pix') || lower.includes('pagar') || lower.includes('como funciona')) {
+                    // Placeholder que será substituído por fetch no futuro
+                    return "É super simples! Nossa lista é virtual. Você escolhe o presente simbólico e o valor é transferido via PIX para os noivos usarem na Lua de Mel ou na casa nova. A chave PIX é: **(11) 99999-9999**.";
+                }
                 if (lower.includes('obrigado') || lower.includes('valeu')) return "Imagina! Eu que agradeço. Qualquer outra dúvida, estou por aqui. 😊";
                 return "Desculpe, ainda estou aprendendo sobre presentes! 😅 Tente perguntar 'como funciona' ou sobre o 'PIX'.";
             }
