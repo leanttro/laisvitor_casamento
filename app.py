@@ -11,7 +11,7 @@ import psycopg2.extras
 
 # ======================================================================
 # API BACKEND - CASAMENTO LAÍS & VITOR
-# Versão: 1.1 (MVP com CRUD Admin)
+# Versão: 1.2 (Correção da coluna de Admin)
 # ======================================================================
 
 load_dotenv()
@@ -45,12 +45,12 @@ def setup_database():
         cur = conn.cursor()
         print("ℹ️  [DB] Verificando tabelas do casamento...")
 
-        # 1. Tabela Admin
+        # 1. Tabela Admin (CAMPO CORRIGIDO PARA CHAVE_ADMIN)
         cur.execute("""
             CREATE TABLE IF NOT EXISTS laisvitor_admin (
                 id SERIAL PRIMARY KEY,
                 username VARCHAR(50) UNIQUE NOT NULL,
-                chave_admin_hash VARCHAR(256) NOT NULL
+                chave_admin VARCHAR(256) NOT NULL
             );
         """)
 
@@ -97,7 +97,8 @@ def setup_database():
         cur.execute("SELECT COUNT(*) FROM laisvitor_admin")
         if cur.fetchone()[0] == 0:
              hash_padrao = hashlib.sha256("123".encode()).hexdigest()
-             cur.execute("INSERT INTO laisvitor_admin (username, chave_admin_hash) VALUES (%s, %s)", ('admin', hash_padrao))
+             # INSERÇÃO USANDO O CAMPO CORRETO E SALVANDO O HASH
+             cur.execute("INSERT INTO laisvitor_admin (username, chave_admin) VALUES (%s, %s)", ('admin', hash_padrao))
              
              # --- SEED DE PRESENTE (Para que a página presentes.html não venha vazia) ---
              cur.execute("SELECT id FROM laisvitor_admin LIMIT 1")
@@ -148,7 +149,8 @@ def login_admin():
     try:
         cur = conn.cursor()
         pass_hash = hash_password(chave_admin)
-        cur.execute("SELECT id FROM laisvitor_admin WHERE username = %s AND chave_admin_hash = %s", (username, pass_hash))
+        # CORRIGIDO: Agora consulta o campo 'chave_admin' que armazena o hash
+        cur.execute("SELECT id FROM laisvitor_admin WHERE username = %s AND chave_admin = %s", (username, pass_hash))
         admin = cur.fetchone()
         
         if admin:
@@ -161,9 +163,8 @@ def login_admin():
     finally:
         if conn: conn.close()
 
-# ======================================================================
-# 4. ENDPOINTS - CONVIDADOS (RSVP PÚBLICO)
-# ======================================================================
+# ... (Restante dos endpoints permanece o mesmo) ...
+
 @app.route('/api/rsvp/verificar', methods=['POST'])
 def rsvp_verificar():
     """LIA usa isso para checar se o código do convite existe."""
