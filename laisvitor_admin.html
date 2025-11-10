@@ -176,7 +176,8 @@
                     <label for="password">Chave de Acesso</label>
                     <input type="password" id="password" required>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Entrar</button>
+                <!-- CORREÇÃO: Usamos type="button" e ID para garantir que o JS dispare, evitando o refresh nativo. -->
+                <button type="button" class="btn btn-primary" id="login-button" style="width: 100%;">Entrar</button> 
                 <p class="error-msg" id="login-error">Credenciais inválidas.</p>
             </form>
         </div>
@@ -369,11 +370,17 @@
             localStorage.removeItem('admin_token');
         }
 
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        // NOVO: Função que lida com o login
+        async function handleLogin(e) {
+            if (e) e.preventDefault(); // Previne o refresh caso seja chamado pelo submit do form
+
             const user = document.getElementById('username').value;
             const pass = document.getElementById('password').value;
             const errorMsg = document.getElementById('login-error');
+            const loginBtn = document.getElementById('login-button');
+
+            loginBtn.disabled = true;
+            errorMsg.style.display = 'none';
 
             try {
                 const response = await fetch(`${API_BASE_URL}/api/login_admin`, {
@@ -396,8 +403,14 @@
                 console.error('Erro no login:', error);
                 errorMsg.textContent = 'Erro ao conectar ao servidor.';
                 errorMsg.style.display = 'block';
+            } finally {
+                loginBtn.disabled = false;
             }
-        });
+        }
+
+        // CORREÇÃO DE INICIALIZAÇÃO: Atribui a função de login a ambos os eventos (Clique e Enter no Form)
+        document.getElementById('login-button').addEventListener('click', handleLogin);
+        document.getElementById('login-form').addEventListener('submit', handleLogin); // Mantém o suporte ao Enter
 
         document.getElementById('logout-btn').addEventListener('click', showLogin);
 
