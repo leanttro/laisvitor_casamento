@@ -1021,7 +1021,7 @@
         }
 
         .detail-card {
-            background-color: var(--background); /* Um tom mais escuro que o fundo da seção */
+            background-color: var(--background); /* Um tone mais escuro que o fundo da seção */
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 5px 20px rgba(0,0,0,0.3);
@@ -1508,9 +1508,52 @@
         .chatbot-header .chatbot-avatar svg {
             display: none;
         }
+
+        /* ======================================================== */
+        /* --- ESTILOS DO BOTÃO DE MÚSICA (NOVO) --- */
+        /* ======================================================== */
+        .music-toggle-btn {
+            position: fixed;
+            bottom: 15px;
+            left: 15px; /* Posicionamento no canto inferior esquerdo */
+            width: 50px;
+            height: 50px;
+            background: rgba(43, 43, 43, 0.4); /* Fundo escuro sutil e transparente */
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: var(--accent-rosa); /* Ícone na cor de destaque */
+            cursor: pointer;
+            z-index: 9999;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .music-toggle-btn:hover {
+            background: rgba(155, 43, 63, 0.6); /* Vinho sutil no hover */
+            color: var(--text-primary);
+            box-shadow: 0 4px 20px rgba(155, 43, 63, 0.5);
+        }
+
+        @media (min-width: 768px) {
+             .music-toggle-btn {
+                bottom: 30px; 
+                left: 30px;
+             }
+        }
+
     </style>
 </head>
 <body>
+
+    <audio id="background-music" loop preload="auto" autoplay muted>
+        <source src="casamento.m4a" type="audio/mp4">
+        Seu navegador não suporta a tag de áudio.
+    </audio>
 
     <header id="main-header">
         <div class="container header-container">
@@ -1754,6 +1797,10 @@
         </div>
     </div>
     
+    <button class="music-toggle-btn" id="musicToggleBtn" aria-label="Ligar/Desligar Música de Fundo">
+        <i class="fas fa-volume-mute" id="musicIcon"></i>
+    </button>
+    
     <div class="floating-chatbot">
         <div id="chatbotButtonContainer">
              <div class="chatbot-minimized-icon" id="minimizedIcon" aria-label="Abrir Chatbot">
@@ -1873,6 +1920,61 @@
             if (heartContainer) {
                 setInterval(createHeart, 500); 
             }
+
+
+            // =============================================================
+            // --- INÍCIO: LÓGICA DO CONTROLE DE MÚSICA (CORRIGIDA) ---
+            // =============================================================
+            const audio = document.getElementById('background-music');
+            const musicToggleBtn = document.getElementById('musicToggleBtn');
+            const musicIcon = document.getElementById('musicIcon');
+            
+            // O áudio já tem 'autoplay muted' no HTML, então ele deve começar a tocar silenciosamente.
+
+            function updateMusicIcon() {
+                if (musicIcon && audio) {
+                    // O ícone deve refletir o estado do 'muted' (Silenciado = Mudo, Não Silenciado = Alto)
+                    // Note: 'audio.paused' não é o suficiente, pois o usuário quer controlar o volume.
+                    if (audio.muted || audio.paused) {
+                        musicIcon.className = 'fas fa-volume-mute';
+                    } else {
+                        musicIcon.className = 'fas fa-volume-up';
+                    }
+                }
+            }
+
+            // Listener do botão de controle
+            if (musicToggleBtn) {
+                musicToggleBtn.addEventListener('click', () => {
+                    if (audio.muted) {
+                        // Se estiver silenciado, desliga o mute.
+                        audio.muted = false;
+                        // Força o play caso o navegador o tenha pausado por segurança.
+                        audio.play().catch(e => {
+                            // Se falhar ao tentar tocar (muito raro após interação), silencia de novo e mostra erro no console.
+                            audio.muted = true;
+                            console.log("Falha ao tocar após desmutar, mantendo silenciado.", e);
+                        });
+                    } else {
+                        // Se estiver tocando (não silenciado), silencia.
+                        audio.muted = true;
+                    }
+                    updateMusicIcon();
+                });
+            }
+            
+            // Garante que o ícone do botão reflita o estado atual da música (incluindo o estado inicial)
+            if (audio) {
+                 // Usa o evento 'canplay' para garantir que a atualização inicial ocorra após o áudio estar pronto
+                audio.addEventListener('canplay', updateMusicIcon);
+                // Atualiza o ícone ao mudar o volume/mute
+                audio.addEventListener('volumechange', updateMusicIcon);
+                // Atualiza o ícone se o áudio pausar ou começar a tocar
+                audio.addEventListener('play', updateMusicIcon);
+                audio.addEventListener('pause', updateMusicIcon);
+            }
+            
+            // --- FIM: LÓGICA DO CONTROLE DE MÚSICA (CORRIGIDA) ---
 
 
             // =============================================================

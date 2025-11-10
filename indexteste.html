@@ -3,13 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- 1. Metadados Atualizados -->
     <title>Laís & Vitor | Nosso Casamento</title>
     <meta name="description" content="Bem-vindo ao site do nosso casamento. Compartilhe esse momento conosco.">
-    <!-- Importação da Font Awesome (Necessária para o ícone de coração) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- Novas Fontes: Cormorant Garamond e Raleway -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -37,6 +34,11 @@
             --chat-text-secondary: var(--text-secondary);
             --chat-accent: var(--accent-vinho); /* Mudado de laranja para vinho */
             --chat-accent-hover: #7c2232; /* Tom de vinho mais escuro para hover */
+
+            /* Status Messages (Para mensagens de formulário) */
+            --status-success: #1DA851; /* Verde */
+            --status-error: #D9534F; /* Vermelho */
+
 
             --font-body: 'Raleway', sans-serif;
             --font-heading: 'Cormorant Garamond', serif;
@@ -101,12 +103,11 @@
             border-bottom: 1px solid var(--border);
         }
         
-        /* ALTERAÇÃO SOLICITADA AQUI: Reduz o padding-top da seção Depoimentos */
+        /* Reduz o padding-top da seção Depoimentos */
         #depoimentos {
             padding-top: 3rem; 
             background-color: var(--background); /* Mesmo fundo da base */
         }
-        /* FIM DA ALTERAÇÃO SOLICITADA */
 
         h1, h2, h3 {
             font-family: var(--font-heading); /* Cormorant Garamond */
@@ -445,7 +446,7 @@
             font-size: 0.9rem;
         }
         .preview-info strong span {
-            color: var(--chat-accent); /* Vinho */
+            color: var(--accent-rosa); /* Vinho */
             text-transform: lowercase;
         }
         .preview-info span {
@@ -666,6 +667,31 @@
             border-top: 1px solid var(--border);
             display: flex;
             gap: 0.8rem;
+        }
+        
+        /* Estilização para Respostas Sugeridas (Opcional, mas útil para RSVP) */
+        .suggested-responses {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .suggested-response-button {
+            padding: 0.4rem 0.8rem;
+            border: 1px solid var(--accent-rosa);
+            border-radius: 15px;
+            background-color: rgba(221, 196, 196, 0.1); /* Rosa sutil */
+            color: var(--accent-rosa);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .suggested-response-button:hover {
+            background-color: var(--accent-rosa);
+            color: var(--background);
         }
 
         .chatbot-input {
@@ -1130,6 +1156,7 @@
             color: var(--accent-rosa);
         }
 
+        /* Botões do Carrossel: Padrão Desktop */
         .carousel-btn {
             background-color: var(--surface);
             border: 1px solid var(--border);
@@ -1141,6 +1168,7 @@
             cursor: pointer;
             z-index: 10;
             transition: all 0.3s ease;
+            flex-shrink: 0; /* Impede que encolha */
         }
         .carousel-btn:hover {
             background-color: var(--accent-vinho);
@@ -1154,18 +1182,34 @@
             margin-left: 1rem;
         }
 
-        /* Esconde botões em telas mobile (usuário vai usar o swipe) */
+        /* --- CORREÇÃO MOBILE: MUDANÇA AQUI --- */
         @media (max-width: 768px) {
-            .carousel-btn {
-                display: none;
-            }
+            /* Remove o padding negativo do carousel-wrapper para que ele não se estenda */
             .carousel-wrapper {
-                 margin: 0 -2rem; /* Faz o carrossel ir de ponta a ponta */
+                 margin: 0; 
             }
+             /* Garante que o carrossel tenha padding nas laterais */
              .carousel-container {
-                 padding: 1rem 2rem; /* Adiciona padding de volta */
+                 padding: 1rem 2rem; 
+             }
+             
+             /* Torna os botões absolutos para sobrepor o carrossel */
+             .carousel-btn {
+                 display: block; /* Garante que estejam visíveis no mobile */
+                 position: absolute;
+                 top: 50%;
+                 transform: translateY(-50%);
+                 margin: 0;
+                 box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+             }
+             .carousel-btn.prev {
+                 left: 0; /* Coloca o botão esquerdo na borda da tela */
+             }
+             .carousel-btn.next {
+                 right: 0; /* Coloca o botão direito na borda da tela */
              }
         }
+        /* --- FIM DA CORREÇÃO MOBILE --- */
 
         /* --- Estilos do Modal --- */
         .modal-overlay {
@@ -1244,6 +1288,7 @@
             background-color: var(--text-primary); 
             border-top: 1px solid var(--border);
             border-bottom: 1px solid var(--border);
+            padding-bottom: 6rem; /* Adicionado para dar espaço ao formulário */
         }
 
         /* 2. Títulos da Seção (Escuros) */
@@ -1296,6 +1341,101 @@
             scrollbar-color: var(--accent-vinho) var(--accent-rosa);
         }  
 
+        /* ======================================================== */
+        /* --- ESTILOS: Formulário de Depoimento (Fase 1) --- */
+        /* ======================================================== */
+        .depoimento-form-wrapper {
+            max-width: 600px;
+            margin: 4rem auto 0 auto;
+            padding: 2rem;
+            background-color: #FFFFFF; /* Fundo branco */
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            border-top: 3px solid var(--accent-vinho);
+        }
+
+        .depoimento-form-wrapper h3 {
+            font-size: 1.8rem;
+            color: var(--background); /* Título escuro */
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--surface); /* Texto de label escuro */
+            font-size: 0.95rem;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-family: var(--font-body);
+            font-size: 1rem;
+            color: var(--background);
+            background-color: #f9f9f9;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent-vinho);
+            box-shadow: 0 0 0 3px rgba(155, 43, 63, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        /* Mensagens de Status */
+        .status-message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            font-weight: 700;
+            text-align: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .status-message.success {
+            background-color: rgba(29, 168, 81, 0.1); /* Verde claro */
+            color: var(--status-success);
+            border: 1px solid var(--status-success);
+        }
+
+        .status-message.error {
+            background-color: rgba(217, 83, 79, 0.1); /* Vermelho claro */
+            color: var(--status-error);
+            border: 1px solid var(--status-error);
+        }
+        
+        .status-message.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Botão de Envio do Formulário */
+        #submit-depoimento {
+            width: 100%;
+            display: block;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            font-size: 1.1rem;
+        }
+        
         /* ======================================================== */
         /* --- INVERSÃO DE CORES: Rodapé (Light) --- */
         /* ======================================================== */
@@ -1381,7 +1521,9 @@
                     <li><a href="#historia">Nossa História</a></li>
                     <li><a href="#depoimentos">Recados</a></li>
                     <li><a href="#detalhes">Detalhes</a></li>
-                </ul >
+                    <li><a href="presentes.html">Lista de Presentes</a></li>
+                    <li><a href="laisvitor_admin.html">Noivos (Admin)</a></li> 
+                    </ul >
             </nav>
             <button class="menu-toggle" id="menu-toggle" aria-label="Abrir menu">
                 <span class="bar"></span>
@@ -1392,54 +1534,47 @@
     </header>
 
     <main>
-        <!-- 2. Seção Hero com Carrossel Atualizada -->
         <section id="inicio">
-            <!-- Container para os Corações -->
             <div class="heart-container" id="heart-container"></div>
 
             <div class="hero-carousel">
-                <!-- REVERTIDO PARA CARROSSEL ORIGINAL DE 3 SLIDES -->
                 <div class="hero-slide active" style="background-image: url('hero1.png');"></div>
                 <div class="hero-slide" style="background-image: url('hero2.png');"></div>
                 <div class="hero-slide" style="background-image: url('hero3.png');"></div>
             </div>
             <div class="hero-overlay"></div>
             <div class="container hero-content">
-                <h1>Laís & Vitor</h1>
-                <p>Estamos muito felizes em compartilhar este momento com você. Confirme sua presença e veja todos os detalhes do nosso grande dia.</p>
+                <h1>Laís & Vitor<br>14/12 </h1>
+                <p>Dia 14 de Dezembro de 2025 contamos com a sua presença para compartilhar este momento tão especial. Confirme sua presença e veja todos os detalhes do nosso grande dia.</p>
                 <div class="hero-buttons">
                     <button class="btn btn-primary" onclick="document.getElementById('chatbotButton').click()">Confirmar Presença</button>
                 </div>
             </div>
         </section>
 
-        <!-- 3. Seção de Direcionamento Atualizada -->
         <section id="direcionamento">
             <div class="direction-grid">
-                <!-- Card 1: Detalhes do Evento -->
                 <div class="direction-card" style="background-image: url('dire1.png');">
                     <div class="direction-card-content">
                         <h3>Detalhes do Evento</h3>
                         <p>Veja o endereço, horário e o traje recomendado para celebrar conosco.</p>
                         <div class="direction-card-buttons">
-                            <button class="btn btn-accent" onclick="document.getElementById('chatbotButton').click()">Ver Detalhes</button>
+                            <a href="#detalhes" class="btn btn-accent" style="text-decoration: none;">Ver Detalhes</a>
                         </div>
                     </div>
                 </div>
-                <!-- Card 2: Lista de Presentes -->
                 <div class="direction-card" style="background-image: url('dire2.png');">
                     <div class="direction-card-content">
                         <h3>Lista de Presentes</h3>
                         <p>Sua presença é o nosso maior presente. Se desejar nos mimar, veja nossa lista de presentes virtual.</p>
                         <div class="direction-card-buttons">
-                            <button class="btn btn-outline" onclick="document.getElementById('chatbotButton').click()">Acessar Lista de Presentes</button>
+                            <a href="presentes.html" class="btn btn-outline" style="text-decoration: none;">Acessar Lista de Presentes</a>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- 1. Bloco de HTML (Nossa História) - INSERIDO AQUI -->
         <section id="historia">
             <div class="container">
                 <div class="section-title">
@@ -1493,7 +1628,6 @@
             </div>
         </section>
 
-        <!-- 1. Bloco de HTML (Seção Recados/Depoimentos) - INSERIDO AQUI -->
         <section id="depoimentos">
             <div class="container">
                 <div class="section-title">
@@ -1503,20 +1637,40 @@
 
                 <div class="carousel-wrapper">
                     <button class="carousel-btn prev" id="carousel-prev" aria-label="Recado anterior">
-                        &lt;
+                        <
                     </button>
                     
                     <div class="carousel-container" id="carousel-container">
+                        <p style="text-align: center; width: 100%; color: var(--accent-vinho);">Carregando recados aprovados...</p>
                         </div>
                     
                     <button class="carousel-btn next" id="carousel-next" aria-label="Próximo recado">
-                        &gt;
+                        >
                     </button>
                 </div>
+
+                <div class="depoimento-form-wrapper">
+                    <h3>Deixe sua Mensagem para os Noivos</h3>
+                    <form id="depoimento-form">
+                        <div class="form-group">
+                            <label for="codigo_convite">Código do Convite (Para identificação)</label>
+                            <input type="text" id="codigo_convite" name="codigo_convite" required maxlength="20">
+                        </div>
+                        <div class="form-group">
+                            <label for="mensagem">Seu Recado Carinhoso</label>
+                            <textarea id="mensagem" name="mensagem" rows="4" required maxlength="500"></textarea>
+                        </div>
+                        
+                        <div id="depoimento-error" class="status-message error"></div>
+                        <div id="depoimento-success" class="status-message success"></div>
+                        
+                        <button type="submit" id="submit-depoimento" class="btn btn-accent">Enviar Recado para Aprovação</button>
+                    </form>
+                </div>
+                
             </div>
         </section>
         
-        <!-- 1. Bloco de HTML (Detalhes do Evento) - INSERIDO AQUI -->
         <section id="detalhes">
             <div class="container">
                 <div class="section-title">
@@ -1591,33 +1745,26 @@
 
     </main>
     
-    <!-- 2. Bloco de HTML (Estrutura do Modal Depoimentos) - INSERIDO AQUI -->
     <div id="depoimento-modal" class="modal-overlay">
         <div class="modal-content">
-            <button class="modal-close" id="modal-close" aria-label="Fechar modal">&times;</button>
+            <button class="modal-close" id="modal-close" aria-label="Fechar modal">×</button>
             <p id="modal-texto"></p>
             <h4 id="modal-nome"></h4>
             <span id="modal-data"></span>
         </div>
     </div>
     
-    <!-- ======================================================== -->
-    <!-- --- CHATBOT LIA --- -->
-    <!-- ======================================================== -->
     <div class="floating-chatbot">
         <div id="chatbotButtonContainer">
              <div class="chatbot-minimized-icon" id="minimizedIcon" aria-label="Abrir Chatbot">
-                <!-- SUBSTITUÍDO: Ícone de robô por imagem do casal -->
                 <img src="casal.png" alt="Foto do Casal" class="chatbot-icon-img">
             </div>
-            <!-- Preview com Novo Nome e Mensagem -->
             <div class="chatbot-preview-button" id="chatbotButton" aria-label="Abrir LIA">
                 <button class="preview-close" id="previewClose" aria-label="Minimizar Preview">
                     <i class="fas fa-times"></i>
                 </button>
                 <div class="preview-header">
                     <div class="preview-avatar">
-                        <!-- SUBSTITUÍDO: Ícone de robô por imagem do casal -->
                         <img src="casal.png" alt="Foto do Casal" class="chatbot-icon-img">
                     </div>
                     <div class="preview-info">
@@ -1631,11 +1778,9 @@
             </div>
         </div>
 
-        <!-- Janela Principal do Chat com Novo Nome e Título -->
         <div class="chatbot-window" id="chatbotWindow">
             <div class="chatbot-header">
                 <div class="chatbot-header-avatar">
-                    <!-- SUBSTITUÍDO: Ícone de robô por imagem do casal -->
                     <img src="casal.png" alt="Foto do Casal" class="chatbot-icon-img">
                 </div>
                 <div class="chatbot-header-info">
@@ -1648,8 +1793,7 @@
             </div>
 
             <div class="chatbot-messages" id="chatbotMessages">
-                <!-- Mensagem inicial inserida via JS -->
-            </div>
+                </div>
 
             <div class="chatbot-input-area">
                 <input 
@@ -1665,28 +1809,26 @@
             </div>
         </div>
     </div>
-    <!-- --- FIM DO HTML DO CHATBOT --- -->
-
-
-    <!-- Rodapé -->
     <footer>
         <div class="container">
             <div class="social-links">
-                <!-- SUBSTITUIÇÃO CONFORME SOLICITADO -->
                 <a href="http://wa.me/5511976232235" class="whatsapp" target="_blank">
                     Falar com os Noivos</a>
             </div>
-            <p>&copy; www.LEANTTRO.com</p>
+            <p>© www.LEANTTRO.com</p>
         </div>
     </footer>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // FASE 2: Constante API
+            const API_BASE_URL = 'https://laisvitor-casamento.onrender.com';
+
             // Lógica do Header e Menu Mobile (MANTIDA)
             const header = document.querySelector('header');
             window.addEventListener('scroll', () => { header.classList.toggle('scrolled', window.scrollY > 50); });
             
-            // Lógica do carrossel (REVERTIDA)
+            // Lógica do carrossel (MANTIDA)
             const slides = document.querySelectorAll('.hero-slide');
             let currentSlide = 0;
             if (slides.length > 0) {
@@ -1708,38 +1850,33 @@
                 }); 
             });
 
-            // =============================================================
-            // --- LÓGICA DE ANIMAÇÃO DE CORAÇÕES ---
-            // =============================================================
+            // LÓGICA DE ANIMAÇÃO DE CORAÇÕES (MANTIDA)
             const heartContainer = document.getElementById('heart-container');
 
             function createHeart() {
-                if (!heartContainer) return; // Garante que o elemento existe
+                if (!heartContainer) return;
 
                 const heart = document.createElement('i');
                 heart.className = 'fas fa-heart heart';
-                heart.style.left = Math.random() * 100 + 'vw'; // Posição X aleatória
-                heart.style.fontSize = Math.random() * 15 + 10 + 'px'; // Tamanho aleatório (10px a 25px)
-                heart.style.animationDuration = Math.random() * 10 + 10 + 's'; // Duração de animação (10s a 20s)
-                
-                // Adiciona um pequeno desvio lateral para a animação parecer mais natural
-                heart.style.animationDelay = - (Math.random() * 5) + 's'; // Atraso aleatório para que não comecem todos juntos
+                heart.style.left = Math.random() * 100 + 'vw'; 
+                heart.style.fontSize = Math.random() * 15 + 10 + 'px'; 
+                heart.style.animationDuration = Math.random() * 10 + 10 + 's'; 
+                heart.style.animationDelay = - (Math.random() * 5) + 's'; 
                 
                 heartContainer.appendChild(heart);
 
-                // Remove o coração após a animação para limpar o DOM
                 setTimeout(() => {
                     heart.remove();
-                }, 20000); // 20 segundos
+                }, 20000); 
             }
 
-            // Gera um novo coração a cada 500ms
             if (heartContainer) {
                 setInterval(createHeart, 500); 
             }
 
+
             // =============================================================
-            // --- INÍCIO: LÓGICA DO CHATBOT LIA (FINAL) ---
+            // --- INÍCIO: LÓGICA DO CHATBOT LIA (FASE 2: MÁQUINA DE ESTADOS) ---
             // =============================================================
 
             const chatbotButton = document.getElementById('chatbotButton'); 
@@ -1752,17 +1889,109 @@
             const minimizedIcon = document.getElementById('minimizedIcon'); 
             const previewMessageEl = document.getElementById('preview-message-text');
 
-            let conversationHistory = []; 
+            // Variáveis de Estado da LIA (FASE 2)
+            let rsvp_step = 0; // 0: Inicial/Livre, 1: Pedindo Código, 2: Pedindo Confirmação, 3: Pedindo Adultos, 4: Pedindo Restrições, 5: Fim
+            let current_convidado_codigo = '';
+            let current_convidado_nome = '';
+            let rsvp_data = {}; // Objeto para armazenar dados de RSVP antes da submissão final
 
-            // --- Lógica de Animação da Preview (FINAL) ---
+            let conversationHistory = []; 
+            let previewInterval;
+            
+            // --- Funções de Chat (MANTIDAS) ---
+            function getCurrentTime() {
+                const now = new Date();
+                return now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            }
+
+            function addMessage(text, isUser = false, suggestedResponses = []) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+                let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                formattedText = formattedText.replace(/\n/g, '<br>');
+                formattedText = formattedText.replace(/<a href/g, '<a style="color: var(--accent-vinho); text-decoration: underline;" target="_blank" href');
+
+                conversationHistory.push({ 
+                    role: isUser ? 'user' : 'bot', 
+                    text: text, 
+                    time: getCurrentTime()
+                });
+
+                let buttonsHtml = '';
+                if (!isUser && suggestedResponses.length > 0) {
+                    buttonsHtml = `<div class="suggested-responses">`;
+                    suggestedResponses.forEach(res => {
+                        buttonsHtml += `<button class="suggested-response-button" onclick="sendSuggestedResponse('${res}')">${res}</button>`;
+                    });
+                    buttonsHtml += `</div>`;
+                }
+
+
+                messageDiv.innerHTML = `
+                    <div class="message-avatar">
+                         <img src="casal.png" alt="${isUser ? 'Você' : 'LIA'}" class="chatbot-icon-img">
+                    </div>
+                    <div class="message-content">
+                        <div class="message-bubble">${formattedText}${buttonsHtml}</div>
+                        <div class="message-time">${getCurrentTime()}</div>
+                    </div>
+                `;
+                if (chatbotMessages) {
+                    chatbotMessages.appendChild(messageDiv);
+                    chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+                }
+            }
+            
+            // Função global para ser chamada pelos botões sugeridos
+            window.sendSuggestedResponse = function(response) {
+                if (chatbotSend.disabled) return;
+                addMessage(response, true);
+                chatbotInput.value = ''; 
+                chatbotSend.disabled = true;
+                showTypingIndicator();
+                
+                // Processa a resposta sugerida
+                setTimeout(async () => {
+                    await handleRsvpFlow(response);
+                    chatbotSend.disabled = false;
+                    chatbotInput.focus();
+                }, 1000);
+            }
+
+            function showTypingIndicator() {
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'message bot typing-message';
+                typingDiv.id = 'typing-indicator';
+                typingDiv.innerHTML = `
+                    <div class="message-avatar"><img src="casal.png" alt="LIA" class="chatbot-icon-img"></div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            <div class="typing-indicator"><span></span><span></span><span></span></div>
+                        </div>
+                    </div>
+                `;
+                if (chatbotMessages) {
+                    chatbotMessages.appendChild(typingDiv);
+                    chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+                }
+            }
+
+            function removeTypingIndicator() {
+                const typingDiv = document.getElementById('typing-indicator');
+                if (typingDiv && typingDiv.parentNode) {
+                    typingDiv.parentNode.removeChild(typingDiv);
+                }
+            }
+            
+            // --- Funções de UI (MANTIDAS) ---
+            // Lógica de Animação da Preview (MANTIDA)
             const previewMessages = [
-                "Olá! 👋 Sou o assistente da Laís e do Vitor.",
+                "Olá! 👋 Sou o assistente virtual da Laís e do Vitor.",
                 "Posso ajudar com seu RSVP?",
                 "Tem dúvidas sobre o local ou traje?",
                 "Clique aqui para falar comigo!"
             ];
             let messageIndex = 0;
-            let previewInterval;
 
             function minimizePreview() {
                 chatbotButton.classList.add('minimized');
@@ -1792,7 +2021,7 @@
             if (previewMessageEl) startPreviewAnimation();
 
 
-            // --- Lógica de Abrir/Fechar Chat ---
+            // Lógica de Abrir/Fechar Chat (MANTIDA)
             function toggleChat(e) {
                 if (e) e.preventDefault();
                 const isActive = chatbotWindow.classList.contains('active');
@@ -1820,73 +2049,213 @@
             
             if (chatbotButton) chatbotButton.addEventListener('click', toggleChat);
             if (chatbotClose) chatbotClose.addEventListener('click', toggleChat);
-
-            // --- Funções de Chat (INÍCIO ATUALIZADO) ---
+            
+            
+            // --- Fluxo da Conversa Inicial ---
             function startChat() {
-                addMessage(
-                    "Olá! 👋 Sou a LIA, a assistente virtual da Laís e do Vitor.<br><br>Estou aqui para ajudar com sua confirmação de presença, dúvidas sobre o local, traje ou lista de presentes. O que gostaria de fazer?", 
-                    false
-                );
+                const initialMessage = "Olá! 👋 Sou a LIA, a assistente virtual da Laís e do Vitor.<br><br>Estou aqui para ajudar com sua **confirmação de presença**, dúvidas sobre o local, traje ou lista de presentes. O que gostaria de fazer?";
+                const suggested = ["Confirmar Presença", "Perguntas Frequentes", "Lista de Presentes"];
+                addMessage(initialMessage, false, suggested);
             }
 
-            function getCurrentTime() {
-                const now = new Date();
-                return now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-            }
 
-            function addMessage(text, isUser = false) {
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
-                let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                formattedText = formattedText.replace(/\n/g, '<br>');
-                formattedText = formattedText.replace(/<a href/g, '<a style="color: var(--accent-vinho); text-decoration: underline;" target="_blank" href');
+            // --- FASE 2: Máquina de Estados do RSVP ---
 
-                conversationHistory.push({ 
-                    role: isUser ? 'user' : 'bot', 
-                    text: text, 
-                    time: getCurrentTime()
-                });
+            async function submitRsvpConfirmation(status) {
+                const isConfirmed = status === 'Confirmado';
+                const payload = {
+                    codigo_convite: current_convidado_codigo,
+                    status_rsvp: status,
+                    qtd_adultos: isConfirmed ? (rsvp_data.qtd_adultos || 0) : 0,
+                    restricoes_alimentares: isConfirmed ? (rsvp_data.restricoes_alimentares || '') : ''
+                };
+                
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/rsvp/confirmar`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (!response.ok) throw new Error('Falha ao registrar RSVP.');
+                    
+                    const result = await response.json();
+                    
+                    if (isConfirmed) {
+                         addMessage(`✅ **RSVP Confirmado!**\n\n${current_convidado_nome}, sua presença foi registrada com sucesso para **${payload.qtd_adultos}** adulto(s). Mal podemos esperar para celebrar com você!`, false);
+                    } else {
+                         addMessage(`❌ **RSVP Recusado.**\n\n${current_convidado_nome}, lamentamos sua ausência, mas entendemos! Agradecemos por nos avisar.`, false);
+                    }
+                    rsvp_step = 5; // Finaliza o fluxo
+                    resetRsvpState();
+                    return true;
 
-                messageDiv.innerHTML = `
-                    <div class="message-avatar">
-                        <i class="fas fa-${isUser ? 'user' : 'robot'}"></i>
-                    </div>
-                    <div class="message-content">
-                        <div class="message-bubble">${formattedText}</div>
-                        <div class="message-time">${getCurrentTime()}</div>
-                    </div>
-                `;
-                if (chatbotMessages) {
-                    chatbotMessages.appendChild(messageDiv);
-                    chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+                } catch (error) {
+                    console.error('Erro de submissão do RSVP:', error);
+                    addMessage(`🔴 Desculpe, ${current_convidado_nome}. Houve um erro ao registrar sua confirmação. Por favor, tente novamente mais tarde.`, false);
+                    rsvp_step = 5; // Finaliza o fluxo
+                    return false;
                 }
             }
 
-            function showTypingIndicator() {
-                const typingDiv = document.createElement('div');
-                typingDiv.className = 'message bot typing-message';
-                typingDiv.id = 'typing-indicator';
-                typingDiv.innerHTML = `
-                    <div class="message-avatar"><i class="fas fa-robot"></i></div>
-                    <div class="message-content">
-                        <div class="message-bubble">
-                            <div class="typing-indicator"><span></span><span></span><span></span></div>
-                        </div>
-                    </div>
-                `;
-                if (chatbotMessages) {
-                    chatbotMessages.appendChild(typingDiv);
-                    chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
-                }
+            function resetRsvpState() {
+                rsvp_step = 0;
+                current_convidado_codigo = '';
+                current_convidado_nome = '';
+                rsvp_data = {};
+                // Permite enviar novas mensagens após a conclusão
+                setTimeout(() => {
+                    startChat();
+                }, 2000); 
             }
 
-            function removeTypingIndicator() {
-                const typingDiv = document.getElementById('typing-indicator');
-                if (typingDiv && typingDiv.parentNode) {
-                    typingDiv.parentNode.removeChild(typingDiv);
+            async function handleRsvpFlow(userText) {
+                const lowerText = userText.toLowerCase().trim();
+                removeTypingIndicator(); // Remove o indicador antes de responder
+                
+                switch(rsvp_step) {
+                    case 0: // Estado Livre/Inicial
+                        if (lowerText.includes('confirmar') || lowerText.includes('rsvp') || lowerText.includes('presença')) {
+                            rsvp_step = 1;
+                            addMessage("Que ótimo que você veio confirmar! Para iniciar o RSVP, por favor, me diga o **código do seu convite** para eu verificar no sistema.", false);
+                        } else {
+                            // Trata perguntas gerais (MANTIDO DO CÓDIGO ANTERIOR)
+                            getGeneralBotResponse(userText); 
+                        }
+                        break;
+
+                    case 1: // Pedindo Código (Recebe o código)
+                        current_convidado_codigo = userText.toUpperCase().replace(/\s/g, ''); // Limpa e padroniza o código
+                        
+                        try {
+                            showTypingIndicator();
+                            const response = await fetch(`${API_BASE_URL}/api/rsvp/verificar`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ codigo_convite: current_convidado_codigo })
+                            });
+                            removeTypingIndicator();
+
+                            if (response.status === 404) {
+                                rsvp_step = 1; // Permanece no passo 1
+                                addMessage("❌ **Código não encontrado!** Por favor, verifique o código no seu convite e digite novamente.", false);
+                                return;
+                            }
+                            
+                            if (!response.ok) throw new Error('Erro na verificação do código.');
+                            
+                            const convidado = await response.json();
+                            current_convidado_nome = convidado.nome_convidado;
+
+                            // Verifica status anterior
+                            if (convidado.status_rsvp === 'Confirmado' || convidado.status_rsvp === 'Recusado') {
+                                rsvp_step = 5; // Finaliza o fluxo
+                                addMessage(`Olá, ${current_convidado_nome}! Seu RSVP já está como **${convidado.status_rsvp}**. Gostaria de **Alterar** ou **Manter**?`, false, ["Alterar", "Manter"]);
+                                return;
+                            }
+                            
+                            // Código válido, avança para a confirmação
+                            rsvp_step = 2;
+                            addMessage(`🎉 Encontrei! Olá, **${current_convidado_nome}**. Você confirma sua presença no casamento de Laís e Vitor?`, false, ["Sim", "Não"]);
+
+                        } catch (error) {
+                            removeTypingIndicator();
+                            console.error('Erro na API de verificação:', error);
+                            addMessage("🔴 Ocorreu um erro na comunicação com o sistema. Por favor, tente novamente.", false);
+                            rsvp_step = 0; // Volta ao início
+                        }
+                        break;
+                        
+                    case 2: // Pedindo Confirmação (Sim/Não ou Alterar/Manter)
+                        if (lowerText.includes('sim') || lowerText.includes('alterar')) {
+                            rsvp_step = 3;
+                            addMessage(`Ótimo, ${current_convidado_nome}! Agora, por favor, me diga **quantos adultos** no total (incluindo você) irão comparecer? (Apenas o número, ex: 1 ou 2)`, false);
+                        } else if (lowerText.includes('não') || lowerText.includes('manter')) {
+                            if (lowerText.includes('manter')) {
+                                addMessage(`Entendido. Seu RSVP permanece como **${current_convidado_nome}**.`, false);
+                                rsvp_step = 0;
+                                resetRsvpState();
+                                return;
+                            }
+                            
+                            rsvp_step = 5;
+                            await submitRsvpConfirmation('Recusado'); // Submete recusa e finaliza
+                        } else {
+                            addMessage("Não entendi sua resposta. Por favor, digite **Sim** para confirmar ou **Não** para recusar.", false, ["Sim", "Não"]);
+                        }
+                        break;
+                        
+                    case 3: // Pedindo Qtd Adultos
+                        const qtdAdultos = parseInt(userText.match(/\d+/)?.[0] || '0'); // Extrai o primeiro número
+                        
+                        if (qtdAdultos > 0) {
+                            rsvp_data.qtd_adultos = qtdAdultos;
+                            rsvp_step = 4;
+                            addMessage(`Certo, ${qtdAdultos} adulto(s). Por último: Você ou seus acompanhantes possuem **restrições alimentares** ou alergias importantes? (Ex: Sou alérgico a glúten, ou: Não, obrigado)`, false);
+                        } else {
+                            addMessage("Por favor, me diga um número válido de adultos. Se você for sozinho, digite **1**.", false);
+                        }
+                        break;
+                        
+                    case 4: // Pedindo Restrições
+                        rsvp_data.restricoes_alimentares = userText.trim();
+                        
+                        // Formato de resumo
+                        const resumo = `
+                            **Resumo do RSVP:**
+                            - Convidado: ${current_convidado_nome}
+                            - Adultos: ${rsvp_data.qtd_adultos}
+                            - Restrições: ${rsvp_data.restricoes_alimentares || 'Nenhuma informada'}
+                            
+                            Tudo certo? Posso **Confirmar** este RSVP?
+                        `;
+
+                        rsvp_step = 5; // Vai para o passo final
+                        addMessage(resumo, false, ["Confirmar", "Voltar ao início"]);
+                        break;
+                        
+                    case 5: // Passo Final (Confirmação do Resumo)
+                         if (lowerText.includes('confirmar')) {
+                            await submitRsvpConfirmation('Confirmado'); // Submete confirmação e finaliza
+                        } else {
+                            addMessage("Ok, cancelando o RSVP. Gostaria de **Iniciar RSVP** novamente ou fazer uma **Pergunta Geral**?", false, ["Iniciar RSVP", "Pergunta Geral"]);
+                            rsvp_step = 0;
+                        }
+                        break;
+                        
+                    default:
+                        addMessage("Desculpe, meu fluxo de conversa foi interrompido. Vamos começar de novo. O que gostaria de fazer?", false, ["Confirmar Presença", "Perguntas Frequentes"]);
+                        rsvp_step = 0;
                 }
             }
+            
+            // Função para tratar mensagens gerais (quando rsvp_step é 0)
+            function getGeneralBotResponse(userText) {
+                const lowerText = userText.toLowerCase();
+                let suggested = [];
+                let response = '';
+                
+                if (lowerText.includes('olá') || lowerText.includes('oi')) {
+                    response = "Olá! Como posso te ajudar com os detalhes do casamento da Laís e do Vitor?";
+                    suggested = ["Confirmar Presença", "Local e Traje"];
+                } else if (lowerText.includes('presente') || lowerText.includes('lista')) {
+                    response = "A Laís e o Vitor têm uma lista de presentes virtual! Você pode acessar clicando aqui: <a href='presentes.html'>**[Lista de Presentes]**</a>. A lista é convertida em PIX para os noivos.";
+                    suggested = ["Confirmar Presença", "Local e Traje"];
+                } else if (lowerText.includes('local') || lowerText.includes('endereço') || lowerText.includes('onde') || lowerText.includes('traje')) {
+                    response = "A cerimônia e a festa serão no mesmo local:<br><strong>Buffet VillaLobos</strong><br>Av. Sete de Setembro, 1234 - São Paulo/SP.\n\nO traje recomendado é **Esporte Fino**.\n\nVocê pode ver o mapa aqui: <a href='https://google.com/maps/dir/?api=1&destination=BUFFET+VILLA+LOBOS+SAO+PAULO'>**[Google Maps]**</a>";
+                    suggested = ["Confirmar Presença", "Lista de Presentes"];
+                } else if (lowerText.includes('obrigado') || lowerText.includes('obrigada')) {
+                    response = "Eu que agradeço! Se precisar de mais alguma coisa, é só perguntar. 😊";
+                } else if (lowerText.includes('admin') || lowerText.includes('noivos')) {
+                    response = "Você quer acessar o Painel de Controle? Por favor, use este link: <a href='laisvitor_admin.html'>**[Painel dos Noivos]**</a>. Lembre-se que é necessário login e senha.";
+                } else {
+                    response = "Desculpe, não entendi essa pergunta. Tente perguntar sobre **RSVP**, **Local**, **Traje** ou **Lista de Presentes**.";
+                    suggested = ["Confirmar Presença", "Lista de Presentes"];
+                }
+                addMessage(response, false, suggested);
+            }
 
+            // --- Gerenciador de Envio de Mensagem ---
             function handleSendMessage() {
                 const messageText = chatbotInput.value.trim();
                 if (messageText === '' || chatbotSend.disabled) return;
@@ -1896,44 +2265,12 @@
                 chatbotSend.disabled = true;
                 showTypingIndicator();
 
-                setTimeout(() => {
-                    removeTypingIndicator();
-                    addMessage(getBotResponse(messageText), false);
+                // Processa a mensagem
+                setTimeout(async () => {
+                    await handleRsvpFlow(messageText);
                     chatbotSend.disabled = false;
                     chatbotInput.focus();
-                }, 1500);
-            }
-            
-            // --- 6. Cérebro do Bot (FINAL) ---
-            function getBotResponse(userText) {
-                const lowerText = userText.toLowerCase();
-
-                if (lowerText.includes('olá') || lowerText.includes('oi')) {
-                    return "Olá! Como posso te ajudar com os detalhes do casamento da Laís e do Vitor?";
-                }
-
-                if (lowerText.includes('rsvp') || lowerText.includes('confirmar') || lowerText.includes('presença')) {
-                    // No futuro, isso iniciaria um fluxo de coleta de dados.
-                    return "Que ótimo que você veio confirmar! Para iniciar o RSVP, por favor, me diga o nome completo que estava no convite.";
-                }
-
-                if (lowerText.includes('presente') || lowerText.includes('lista')) {
-                    return "A Laís e o Vitor têm uma lista de presentes virtual! Você pode acessar clicando aqui: <a href='#'>[Link da Lista de Presentes]</a>. A lista é convertida em PIX para os noivos.";
-                }
-
-                if (lowerText.includes('local') || lowerText.includes('endereço') || lowerText.includes('onde')) {
-                    return "A cerimônia e a festa serão no mesmo local:<br><strong>Buffet VillaLobos</strong><br>Av. Sete de Setembro, 1234 - São Paulo/SP.<br><br>Você pode ver o mapa aqui: <a href='#'>[Link do Google Maps]</a>";
-                }
-
-                if (lowerText.includes('traje') || lowerText.includes('roupa') || lowerText.includes('vestir')) {
-                    return "O traje recomendado é <strong>Esporte Fino</strong>. Queremos que todos estejam elegantes e confortáveis para celebrar conosco!";
-                }
-
-                if (lowerText.includes('obrigado') || lowerText.includes('obrigada')) {
-                    return "Eu que agradeço! Se precisar de mais alguma coisa, é só perguntar. 😊";
-                }
-
-                return "Desculpe, não entendi essa pergunta. Tente perguntar sobre RSVP, Local, Traje ou Lista de Presentes.";
+                }, 1000); // Aguarda 1 segundo para simular o processamento
             }
             
             if (chatbotSend) chatbotSend.addEventListener('click', handleSendMessage);
@@ -1942,39 +2279,44 @@
             });
             
             // =============================================================
-            // --- Lógica da Animação da Timeline - INSERIDO AQUI ---
+            // --- FIM: LÓGICA DO CHATBOT LIA ---
             // =============================================================
+            
+            
+            // Lógica da Animação da Timeline (MANTIDA)
             const timelineItems = document.querySelectorAll('.timeline-item');
-
             const observer = new IntersectionObserver(entries => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         entry.target.classList.add('is-visible');
-                        observer.unobserve(entry.target); // Para animar apenas uma vez
+                        observer.unobserve(entry.target); 
                     }
                 });
             }, {
-                root: null, // viewport
+                root: null, 
                 rootMargin: '0px',
-                threshold: 0.3 // 30% do item visível
+                threshold: 0.3 
             });
 
             timelineItems.forEach(item => {
                 observer.observe(item);
             });
             
-            // =============================================================
-            // --- INÍCIO: Lógica do Botão "Copiar Endereço" ---
-            // =============================================================
+            // Lógica do Botão "Copiar Endereço" (MANTIDA)
             const copyButton = document.getElementById('copy-address-btn');
             const addressText = document.getElementById('event-address');
 
             if (copyButton && addressText) {
                 copyButton.addEventListener('click', () => {
                     const address = addressText.innerText;
-                    
-                    navigator.clipboard.writeText(address).then(() => {
-                        // Sucesso
+                    try {
+                        const tempInput = document.createElement('textarea');
+                        tempInput.value = address;
+                        document.body.appendChild(tempInput);
+                        tempInput.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(tempInput);
+
                         const originalText = copyButton.innerText;
                         copyButton.innerText = "Copiado! 👍";
                         copyButton.disabled = true;
@@ -1984,46 +2326,17 @@
                             copyButton.disabled = false;
                         }, 2000);
 
-                    }).catch(err => {
-                        // Erro (raro, mas bom ter)
+                    } catch (err) {
                         console.error('Falha ao copiar endereço: ', err);
-                        // Usando console.log em vez de alert()
                         console.log("Não foi possível copiar o endereço. Tente manualmente.");
-                    });
+                    }
                 });
             }
-            // --- FIM: Lógica do Botão "Copiar Endereço" ---
             
             // =============================================================
-            // --- INÍCIO: Lógica do Carrossel e Modal de Depoimentos ---
+            // --- INÍCIO: Lógica do Carrossel e Modal de Depoimentos (FASE 3 - READ) ---
             // =============================================================
             
-            // --- 1. DUMMY DATA (Simulando o fetch de 'laisvitor_depoimentos') ---
-            // No futuro, você vai substituir isso por: const dummyData = await fetch(...).then(res => res.json());
-            const dummyData = [
-                {
-                    nome: "Ana Beatriz (Madrinha)",
-                    data: "10/10/2025",
-                    texto: "Meus queridos, que alegria imensa fazer parte deste momento! Acompanho essa história desde o começo, do primeiro café (que eu sei que foi hilário) até agora. Vocês são a prova de que o amor verdadeiro é construído com paciência, risadas e muito companheirismo. A Lais é a irmã que eu escolhi e o Vitor é o cara incrível que a faz mais feliz do que nunca. Amo vocês!"
-                },
-                {
-                    nome: "Carlos (Pai do Noivo)",
-                    data: "08/10/2025",
-                    texto: "Filho, você sempre foi nosso orgulho. E Lais, querida, você trouxe uma luz nova para nossa família. Vê-los construir um lar, uma vida, com tanto respeito um pelo outro, enche meu coração de felicidade. Que este 'sim' seja a continuação de uma vida inteira de bênçãos. Estamos ansiosos pelo grande dia!"
-                },
-                {
-                    nome: "Juliana e Marcos",
-                    data: "05/10/2025",
-                    texto: "Lá e Vitão! Finalmente! Casal, vocês são pura inspiração. Mal podemos esperar para celebrar com vocês, dançar até o chão e comemorar essa união que já era certa desde o dia que apresentamos o Paçoca pra vocês kkkk. Preparem-se porque vamos festejar muito! Felicidades mil!"
-                },
-                {
-                    nome: "Dona Maria (Avó da Noiva)",
-                    data: "02/10/2025",
-                    texto: "Minha neta querida, parece que foi ontem que você era uma menina correndo pelo jardim. Hoje é uma mulher linda, prestes a se casar com um homem bom. Vitor, cuide bem da minha menina. Que Deus abençoe essa união com muita sabedoria e netinhos (kkk). Com amor, Vovó."
-                }
-            ];
-
-            // --- 2. Seletores do DOM ---
             const carouselContainer = document.getElementById('carousel-container');
             const btnPrev = document.getElementById('carousel-prev');
             const btnNext = document.getElementById('carousel-next');
@@ -2034,34 +2347,56 @@
             const modalNome = document.getElementById('modal-nome');
             const modalData = document.getElementById('modal-data');
 
-            // --- 3. Função para Popular o Carrossel ---
+
+            // FASE 3: Função para buscar depoimentos do backend
+            async function fetchTestimonials() {
+                if (!carouselContainer) return;
+                carouselContainer.innerHTML = '<p style="text-align: center; width: 100%; color: var(--accent-vinho);">Carregando recados aprovados...</p>';
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/depoimentos`);
+                    if (!response.ok) throw new Error('Erro ao buscar depoimentos.');
+                    
+                    const depoimentos = await response.json();
+                    
+                    if (depoimentos.length === 0) {
+                        carouselContainer.innerHTML = '<p style="text-align: center; width: 100%; color: var(--text-secondary);">Nenhum recado aprovado no momento. Que tal ser o primeiro? Use o formulário abaixo!</p>';
+                    } else {
+                        populateCarousel(depoimentos);
+                    }
+                } catch (error) {
+                    console.error('Erro ao buscar depoimentos:', error);
+                    carouselContainer.innerHTML = '<p style="text-align: center; width: 100%; color: var(--status-error);">Erro ao carregar recados. Tente recarregar a página.</p>';
+                }
+            }
+
+
+            // Função para Popular o Carrossel (MANTIDA)
             function populateCarousel(data) {
                 if (!carouselContainer) return;
                 
-                carouselContainer.innerHTML = ''; // Limpa o container
+                carouselContainer.innerHTML = ''; 
                 
                 data.forEach(depoimento => {
                     const card = document.createElement('div');
                     card.className = 'depoimento-card-preview';
                     
-                    // Armazena os dados completos no elemento (melhor prática)
                     card.dataset.fullText = depoimento.texto;
                     card.dataset.nome = depoimento.nome;
-                    card.dataset.data = depoimento.data;
+                    card.dataset.data = depoimento.data; 
 
                     card.innerHTML = `
                         <p class="preview-text">${depoimento.texto}</p>
                         <h4 class="preview-nome">${depoimento.nome}</h4>
                     `;
                     
-                    // Adiciona o listener de clique para abrir o modal
                     card.addEventListener('click', () => openModal(depoimento));
                     
                     carouselContainer.appendChild(card);
                 });
             }
 
-            // --- 4. Funções do Modal ---
+            // Funções do Modal (MANTIDAS)
             function openModal(depoimento) {
                 if (!modalOverlay) return;
                 
@@ -2077,26 +2412,24 @@
                 modalOverlay.classList.remove('active');
             }
 
-            // --- 5. Funções de Navegação do Carrossel ---
+            // Funções de Navegação do Carrossel (MANTIDAS)
             function scrollCarousel(direction) {
                 if (!carouselContainer) return;
-                const scrollAmount = 324; // Largura do card (300px) + gap (1.5rem = 24px)
+                // Largura do card (300px) + gap (1.5rem = 24px)
+                const scrollAmount = 324; 
                 carouselContainer.scrollBy({
                     left: direction === 'next' ? scrollAmount : -scrollAmount,
                     behavior: 'smooth'
                 });
             }
 
-            // --- 6. Inicialização e Event Listeners ---
-            if (carouselContainer) {
-                 populateCarousel(dummyData); // Popula o carrossel ao carregar
-            }
+            // Inicialização e Event Listeners do Carrossel
+            fetchTestimonials(); 
            
             if (btnPrev) btnPrev.addEventListener('click', () => scrollCarousel('prev'));
             if (btnNext) btnNext.addEventListener('click', () => scrollCarousel('next'));
             if (modalClose) modalClose.addEventListener('click', closeModal);
             if (modalOverlay) {
-                // Fecha o modal se clicar fora do conteúdo
                 modalOverlay.addEventListener('click', (event) => {
                     if (event.target === modalOverlay) {
                         closeModal();
@@ -2104,6 +2437,77 @@
                 });
             }
             // --- FIM: Lógica do Carrossel e Modal ---
+
+
+            // =============================================================
+            // --- INÍCIO: Lógica do Formulário de Depoimentos (FASE 3 - CREATE) ---
+            // =============================================================
+            const depoimentoForm = document.getElementById('depoimento-form');
+            const errorMsg = document.getElementById('depoimento-error');
+            const successMsg = document.getElementById('depoimento-success');
+            const submitBtn = document.getElementById('submit-depoimento');
+
+            function showStatus(element, message, type) {
+                // Remove a classe 'active' de todas as mensagens
+                [errorMsg, successMsg].forEach(el => el.classList.remove('active'));
+                
+                // Configura e exibe a mensagem correta
+                element.innerText = message;
+                element.classList.add('active');
+                
+                // Oculta após 5 segundos
+                setTimeout(() => {
+                    element.classList.remove('active');
+                }, 5000);
+            }
+
+            depoimentoForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                submitBtn.disabled = true;
+                submitBtn.innerText = 'Enviando...';
+                
+                const codigo = document.getElementById('codigo_convite').value.trim().toUpperCase();
+                const mensagem = document.getElementById('mensagem').value.trim();
+                
+                if (!codigo || !mensagem) {
+                    showStatus(errorMsg, 'Preencha todos os campos.', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = 'Enviar Recado para Aprovação';
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/depoimentos`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            codigo_convite: codigo,
+                            mensagem: mensagem
+                        })
+                    });
+                    
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        // Trata 404 de código inválido e outros erros
+                        showStatus(errorMsg, result.erro || 'Erro ao enviar recado. Verifique seu código de convite.', 'error');
+                    } else {
+                        showStatus(successMsg, '✅ Recado enviado! Ele aparecerá aqui após a aprovação dos noivos.', 'success');
+                        // Limpa o formulário após o sucesso
+                        depoimentoForm.reset(); 
+                    }
+
+                } catch (error) {
+                    console.error('Erro de rede/servidor:', error);
+                    showStatus(errorMsg, 'Erro de conexão. Tente novamente mais tarde.', 'error');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = 'Enviar Recado para Aprovação';
+                }
+            });
+            // --- FIM: Lógica do Formulário de Depoimentos ---
+
         });
     </script>
 </body>
