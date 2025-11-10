@@ -38,7 +38,7 @@
         /* --- UTILITÁRIOS E BOTÕES --- */
         .btn { padding: 0.8rem 1.5rem; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
         .btn-primary { background-color: var(--accent-vinho); color: var(--text-primary); }
-        .btn-primary:hover { background-color: var(--chat-accent-hover); }
+        .btn-primary:hover { background-color: #7c2232; }
         .btn-danger { background-color: var(--status-rejected); color: var(--text-primary); }
         .btn-danger:hover { background-color: #a72323; }
         .btn-success { background-color: var(--status-confirmed); color: var(--text-primary); }
@@ -421,7 +421,7 @@
             loadDashboardStats();
             loadGiftsTable();
             loadConvidadosTable(); 
-            // loadModerationList(); 
+            loadModerationList(); // <-- AGORA CHAMADO CORRETAMENTE
         }
         
         async function loadDashboardStats() {
@@ -458,6 +458,85 @@
             window.requestAnimationFrame(step);
         }
         
+        // =============================================================
+        // --- FUNÇÕES DE MODERAÇÃO DE RECADOS (CORREÇÃO DO 403) ---
+        // =============================================================
+        const moderationListEl = document.getElementById('moderation-list');
+
+        async function loadModerationList() {
+            moderationListEl.innerHTML = '<p style="color: var(--text-secondary);">Carregando recados...</p>';
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/admin/depoimentos/pendentes`, { headers: getAuthHeaders() });
+                if (!response.ok) {
+                    if (response.status === 403) {
+                        moderationListEl.innerHTML = '<p style="color:var(--status-rejected);">Autorização Expirada. Por favor, faça o login novamente.</p>';
+                        showLogin();
+                        return;
+                    }
+                    throw new Error('Falha ao carregar recados pendentes');
+                }
+                
+                const recados = await response.json();
+                moderationListEl.innerHTML = '';
+                
+                if (recados.length === 0) {
+                    moderationListEl.innerHTML = '<p style="color: var(--text-secondary);">Nenhum recado pendente de moderação.</p>';
+                    return;
+                }
+
+                recados.forEach(r => {
+                    const card = document.createElement('div');
+                    card.className = 'message-card';
+                    card.dataset.id = r.id; 
+
+                    card.innerHTML = `
+                        <div class="message-content">
+                            <p>"${r.mensagem}"</p>
+                            <span class="message-author">Enviado por: ${r.nome_convidado}</span>
+                        </div>
+                        <div class="message-actions">
+                            <button class="btn-action btn-approve" onclick="handleModeration(${r.id}, 'Aprovado')">Aprovar</button>
+                            <button class="btn-action btn-reject" onclick="handleModeration(${r.id}, 'Rejeitado')">Rejeitar</button>
+                        </div>
+                    `;
+                    moderationListEl.appendChild(card);
+                });
+
+            } catch (error) {
+                console.error('Erro ao carregar lista de moderação:', error);
+                moderationListEl.innerHTML = '<p style="color:var(--status-rejected);">Erro ao carregar lista.</p>';
+            }
+        }
+        
+        window.handleModeration = async function(depoimentoId, status) {
+            const confirmed = confirm(`Tem certeza que deseja ${status.toLowerCase()} o recado?`);
+            if (!confirmed) return;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/admin/depoimentos/${depoimentoId}/status`, {
+                    method: 'PUT',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ status: status })
+                });
+
+                if (response.ok) {
+                    // Atualiza ambas as listas e o contador
+                    loadModerationList(); 
+                    loadDashboardStats();
+                    // Não precisa atualizar o carrossel público, pois ele é carregado no index
+                } else if (response.status === 403) {
+                     alert('Falha de Autorização (403). Redirecionando para login.');
+                     showLogin();
+                } else {
+                    alert('Falha ao atualizar status do recado.');
+                }
+
+            } catch (error) {
+                console.error('Erro ao moderar recado:', error);
+                alert('Erro de conexão ao servidor ao tentar moderar.');
+            }
+        }
+
         // =============================================================
         // --- FUNÇÕES DE GERENCIAMENTO DE CONVIDADOS ---
         // =============================================================
@@ -611,6 +690,7 @@
         
         // Função para ativar/desativar um presente (Chamará o PUT /api/admin/presentes/<id>/status)
         window.toggleGiftStatus = async function(giftId, newStatus) {
+            // NOTE: Substituído por modal customizado se necessário, mas mantendo o alert simples
             if (!confirm(`Tem certeza que deseja ${newStatus ? 'ATIVAR' : 'DESATIVAR'} o presente ID ${giftId}?`)) return;
             try {
                 const response = await fetch(`${API_BASE_URL}/api/admin/presentes/${giftId}/status`, {
