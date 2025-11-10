@@ -1,0 +1,2110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 1. Metadados Atualizados -->
+    <title>Laís & Vitor | Nosso Casamento</title>
+    <meta name="description" content="Bem-vindo ao site do nosso casamento. Compartilhe esse momento conosco.">
+    <!-- Importação da Font Awesome (Necessária para o ícone de coração) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Novas Fontes: Cormorant Garamond e Raleway -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Variáveis de Cores e Estilos Globais - NOVA PALETA */
+        :root {
+            /* Base Dark Romântica */
+            --background: #2B2B2B; /* Carvão profundo */
+            --surface: #3E3E3E;    /* Cinza médio para superfícies */
+            --border: #505050;      /* Bordas sutis */
+
+            /* Textos (Branco-Osso para suavidade) */
+            --text-primary: #F5F5F5; /* Branco-osso/creme */
+            --text-secondary: #B0B0B0; /* Cinza claro para parágrafos */
+
+            /* Acentos (Vinho e Rosa) */
+            --accent-vinho: #9B2B3F; /* Vinho/Burgundy (Cor principal) */
+            --accent-rosa: #DDC4C4;  /* Rosa Blush/Queimado (Cor de detalhe) */
+            
+            /* Variáveis do Chatbot (Adaptadas para a nova paleta) */
+            --chat-bg-primary: var(--background);
+            --chat-bg-secondary: var(--surface);
+            --chat-text-primary: var(--text-primary);
+            --chat-text-secondary: var(--text-secondary);
+            --chat-accent: var(--accent-vinho); /* Mudado de laranja para vinho */
+            --chat-accent-hover: #7c2232; /* Tom de vinho mais escuro para hover */
+
+            --font-body: 'Raleway', sans-serif;
+            --font-heading: 'Cormorant Garamond', serif;
+
+            /* Mantendo variáveis antigas mapeadas para as novas para compatibilidade */
+            --accent: var(--accent-vinho);
+            --accent-hover: var(--chat-accent-hover);
+        }
+
+        /* ... (Reset e Base CSS) ... */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-body); /* Raleway */
+            background-color: var(--background);
+            color: var(--text-secondary); /* Cinza mais suave */
+            line-height: 1.7; /* Elegância */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ... (Utilitários) ... */
+         .container {
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        section {
+            padding: 6rem 0;
+            /* CORREÇÃO PARA CABEÇALHO FIXO: Deixa 80px de margem acima para o navegador rolar até aqui */
+            scroll-margin-top: 80px; 
+        }
+        
+        /* Reduz o padding-top da seção História */
+        #historia {
+            padding-top: 3rem; 
+            /* NOVO: Aplica a imagem de fundo para a seção História */
+            background-image: url('história.png');
+            background-size: cover;
+            background-position: center;
+            position: relative; /* Necessário para o before funcionar */
+        }
+        /* Adiciona um overlay para o texto da história ficar legível sobre a imagem */
+        #historia::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(43, 43, 43, 0.75); /* Dark overlay, ajustável se a foto for muito escura */
+            z-index: 0;
+        }
+        #historia .container {
+             position: relative;
+             z-index: 1; /* Garante que o conteúdo fique acima do overlay */
+        }
+        
+        /* Reduz o padding-top da seção Detalhes */
+        #detalhes {
+            padding-top: 3rem; 
+            background-color: var(--surface); /* Fundo sutilmente diferente para a seção */
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        /* ALTERAÇÃO SOLICITADA AQUI: Reduz o padding-top da seção Depoimentos */
+        #depoimentos {
+            padding-top: 3rem; 
+            background-color: var(--background); /* Mesmo fundo da base */
+        }
+        /* FIM DA ALTERAÇÃO SOLICITADA */
+
+        h1, h2, h3 {
+            font-family: var(--font-heading); /* Cormorant Garamond */
+            color: var(--text-primary); /* Branco-osso */
+            font-weight: 600; /* Mais elegante que 800 */
+            line-height: 1.3;
+        }
+
+        a {
+            color: var(--accent-vinho);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: var(--chat-accent-hover);
+        }
+
+        /* Cabeçalho */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1rem 0;
+            background-color: transparent;
+            z-index: 1000;
+            transition: background-color 0.4s ease, border-bottom 0.4s ease;
+            border-bottom: 1px solid var(--border);
+        }
+
+        header.scrolled {
+            background-color: rgba(43, 43, 43, 0.9); /* Adaptado para o novo background #2B2B2B */
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo { 
+            font-family: var(--font-heading); 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            color: var(--text-primary);
+        }
+        /* Ajuste: vou colocar a cor rosa no logo todo para destaque sutil. */
+        .logo {
+             color: var(--accent-rosa);
+        }
+
+        nav ul { display: flex; list-style: none; gap: 2rem; }
+        nav a { color: var(--text-secondary); font-weight: 500; padding: 0.5rem 0; border-bottom: 2px solid transparent; }
+        nav a:hover, nav a.active { color: var(--text-primary); border-bottom-color: var(--accent-vinho); }
+        .menu-toggle { display: none; flex-direction: column; justify-content: space-around; width: 24px; height: 24px; background: transparent; border: none; cursor: pointer; z-index: 1001; }
+        .menu-toggle .bar { width: 100%; height: 2px; background-color: var(--text-primary); transition: all 0.3s ease; }
+        
+        /* Seção Hero (Carrossel) */
+        #inicio { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 80px 2rem 0; position: relative; overflow: hidden; color: #ffffff; }
+        .hero-carousel { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        /* REVERTIDO PARA CARROSSEL: Slide individual */
+        .hero-slide { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background-size: cover; 
+            background-position: center; 
+            opacity: 0; 
+            transition: opacity 1.5s ease-in-out; 
+        }
+        .hero-slide.active { opacity: 1; }
+        /* FIM REVERSÃO */
+        
+        .hero-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 2; /* Levemente mais escuro para contraste com texto claro */ }
+        .hero-content { max-width: 750px; position: relative; z-index: 3; }
+        #inicio h1 { font-size: 3.5rem; margin-bottom: 1rem; font-weight: 600; text-shadow: 0 2px 10px rgba(0,0,0,0.5); color: var(--text-primary); }
+        #inicio p { font-size: 1.25rem; color: rgba(255, 255, 255, 0.9); margin-bottom: 2.5rem; font-family: var(--font-body); }
+        .hero-buttons { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+        .btn { padding: 0.8rem 1.75rem; border-radius: 8px; font-weight: 700; transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease; display: inline-block; border: 2px solid transparent; box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer; font-family: var(--font-body); }
+        .btn:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+        .btn-primary { background-color: var(--text-primary); color: var(--background); }
+        .btn-primary:hover { background-color: var(--accent-rosa); color: var(--background); }
+        .btn-outline { background-color: transparent; color: var(--text-primary); border-color: var(--text-primary); }
+        .btn-outline:hover { background-color: rgba(255, 255, 255, 0.1); }
+        
+        .btn-accent {
+            background-color: var(--accent-vinho);
+            color: var(--text-primary);
+            border-color: var(--accent-vinho);
+        }
+        .btn-accent:hover {
+            background-color: var(--chat-accent-hover);
+            border-color: var(--chat-accent-hover);
+        }
+
+        /* SEÇÃO: Direcionamento */
+        #direcionamento { padding: 0; }
+        .direction-grid { display: grid; grid-template-columns: 1fr 1fr; }
+        .direction-card { min-height: 500px; padding: 4rem; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; text-align: left; position: relative; background-size: cover; background-position: center; color: var(--text-primary); overflow: hidden; }
+        .direction-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.3)); transition: background-color 0.4s ease; }
+        .direction-card:hover::before { background-color: rgba(0,0,0,0.5); }
+        .direction-card-content { position: relative; z-index: 2; max-width: 450px; }
+        .direction-card h3 { font-size: 2.2rem; margin-bottom: 1rem; text-align: left; color: var(--text-primary); }
+        .direction-card p { font-size: 1.1rem; margin-bottom: 2rem; color: rgba(255, 255, 255, 0.9); }
+        .direction-card-buttons { display: flex; flex-direction: column; gap: 1rem; align-items: flex-start; }
+
+        /* Rodapé */
+        footer {
+            padding: 3rem 0;
+            display: flex;
+            flex-direction: column; 
+            align-items: center;
+            position: relative;
+            background-color: var(--surface);
+            margin-top: auto; 
+            border-top: 1px solid var(--border);
+        }
+        footer p {
+            color: var(--text-secondary);
+            font-family: var(--font-body);
+        }
+        .social-links {
+            display: flex;
+            gap: 1.5rem; 
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap; 
+            justify-content: center;
+        }
+        .social-links a {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+            font-family: var(--font-body);
+        }
+        .social-links a svg {
+            margin-right: 0.5rem; 
+        }
+        /* Cores sociais mantidas, mas você pode querer ajustá-las para combinar mais se desejar */
+        .social-links .whatsapp { background-color: #25D366; }
+        .social-links .whatsapp:hover { background-color: #1DA851; }
+        /* LinkedIn e Github removidos do HTML, então CSS não fará efeito neles, mas pode manter se quiser reutilizar depois */
+        .social-links .linkedin { background-color: #0A66C2; }
+        .social-links .linkedin:hover { background-color: #084C90; }
+        .social-links .github { background-color: #333; }
+        .social-links .github:hover { background-color: #555; }
+        
+
+        /* ======================================================== */
+        /* --- ESTILOS DE ANIMAÇÃO DE CORAÇÕES (NOVO) --- */
+        /* ======================================================== */
+        .heart-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Garante que os cliques passem por ele */
+            overflow: hidden; /* Mantém os corações dentro da seção hero */
+            z-index: 2; /* Fica acima do carrossel, mas abaixo do texto e botões */
+        }
+
+        .heart {
+            position: absolute;
+            bottom: -50px; /* Começa abaixo da tela */
+            color: var(--accent-rosa); /* Cor Rosa Blush */
+            opacity: 0;
+            animation: floatUp linear infinite;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.5; /* Aumentado de 0.1 para 0.5 para maior visibilidade */
+            }
+            50% {
+                opacity: 0.8; /* Aumentado de 0.5 para 0.8 para maior visibilidade */
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        /* Font Awesome para os ícones */
+        .fas {
+            font-family: "Font Awesome 6 Free" !important;
+            font-weight: 900 !important;
+        }
+        /* Fim dos estilos de corações */
+
+        /* Container Flutuante Principal */
+        .floating-chatbot {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            left: 15px;
+            z-index: 9999;
+        }
+
+        /* Container do Botão e Minimizado */
+        #chatbotButtonContainer {
+            width: 100%;
+            max-width: 300px; /* Largura mobile da preview */
+            margin-left: auto;
+            margin-right: 0;
+            position: relative; 
+        }
+
+        /* ESTADO: PREVIEW (Caixa de Notificação) */
+        .chatbot-preview-button {
+            width: 100%;
+            /* TEMA: Fundo escuro, borda vinho sutil */
+            background-color: var(--chat-bg-secondary); 
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+            animation: pulse-dark 2s infinite;
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1);
+        }
+
+        .chatbot-preview-button:hover {
+            transform: scale(1.03);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7);
+        }
+        
+        /* ESTADO: ATIVO (Quando a Janela Principal está aberta) */
+        .chatbot-preview-button.active {
+            opacity: 0;
+            transform: scale(0.9);
+            visibility: hidden;
+            height: 0;
+            padding: 0;
+        }
+
+        /* Botão X de Fechar/Minimizar dentro da Preview */
+        .preview-close {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: none;
+            border: none;
+            color: var(--chat-text-secondary); /* Cor de texto sutil */
+            font-size: 0.8rem;
+            cursor: pointer;
+            padding: 5px;
+            z-index: 100;
+        }
+        
+        /* ESTADO: MINIMIZED (Ícone de Robô Puro) */
+        .chatbot-minimized-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--chat-accent); /* Vinho */
+            border-radius: 50%;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: var(--chat-text-primary); /* Branco-osso */
+            cursor: pointer;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(0.5);
+            transition: all 0.3s ease;
+        }
+
+        .chatbot-minimized-icon.minimized {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1);
+            animation: none; /* Desliga o pulse */
+        }
+        .chatbot-minimized-icon:hover {
+            background: var(--chat-accent-hover);
+        }
+
+        /* Oculta o conteúdo interno da preview */
+        .chatbot-preview-button.minimized {
+            opacity: 0;
+            visibility: hidden;
+            height: 0;
+            padding: 0;
+        }
+
+        /* Ajusta o Botão Minimized quando a Janela Principal está Aberta */
+        .chatbot-minimized-icon.active {
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(0.5);
+        }
+
+        /* Conteúdo da Preview */
+        .preview-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .preview-avatar {
+            width: 35px;
+            height: 35px;
+            background: var(--chat-accent); /* Vinho */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-heading);
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: var(--chat-text-primary); /* Branco-osso */
+            flex-shrink: 0;
+        }
+        .preview-info strong {
+            font-family: var(--font-body);
+            font-weight: 700;
+            color: var(--chat-text-primary); /* Branco-osso */
+            font-size: 0.9rem;
+        }
+        .preview-info strong span {
+            color: var(--chat-accent); /* Vinho */
+            text-transform: lowercase;
+        }
+        .preview-info span {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--chat-text-secondary); /* Cinza claro */
+        }
+        .preview-message-bubble {
+            background-color: rgba(155, 43, 63, 0.15); /* Fundo vinho sutil */
+            border-left: 3px solid var(--chat-accent); /* Borda vinho */
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: var(--chat-text-primary); /* Branco-osso */
+            font-family: var(--font-body);
+        }
+        .preview-message-bubble #preview-message-text {
+            transition: opacity 0.3s ease-in-out;
+        }
+        
+        /* Animação de Pulse (Adaptada para Vinho) */
+        @keyframes pulse-dark {
+            0%, 100% {
+                box-shadow: 0 8px 25px rgba(155, 43, 63, 0.2);
+            }
+            50% {
+                box-shadow: 0 8px 35px rgba(155, 43, 63, 0.4);
+            }
+        }
+
+        /* Janela Principal do Chatbot (Modal) */
+        .chatbot-window {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            left: 15px;
+            width: calc(100% - 30px);
+            max-width: 400px;
+            height: 70vh;
+            max-height: 550px;
+            background-color: var(--chat-bg-secondary); /* Fundo #3E3E3E */
+            border: 1px solid var(--border); /* Borda #505050 */
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 9998;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+        
+        .chatbot-window.active {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .chatbot-header {
+            background: linear-gradient(135deg, var(--chat-accent), var(--chat-accent-hover)); /* Gradiente Vinho */
+            padding: 1.2rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+        }
+
+        .chatbot-header-avatar {
+            width: 45px;
+            height: 45px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--chat-text-primary); /* Branco-osso */
+            flex-shrink: 0;
+        }
+
+        .chatbot-header-info h3 {
+            font-family: var(--font-heading);
+            font-size: 1.4rem;
+            letter-spacing: 1px;
+            margin-bottom: 0.2rem;
+            color: var(--chat-text-primary); /* Branco-osso */
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        
+        /* MUDANÇA: O 'span' no h3 agora será usado para estilizar 'IA' em LIA, se desejar */
+        .chatbot-header-info h3 span {
+            color: var(--accent-rosa);
+            /* text-transform: lowercase;  <-- Removido para LIA ficar tudo em maiúsculo ou como preferir */
+            opacity: 1;
+        }
+
+        .chatbot-header-info p {
+            font-size: 0.75rem;
+            opacity: 0.9;
+            color: var(--chat-text-primary); /* Branco-osso */
+            font-family: var(--font-body);
+        }
+
+        .chatbot-close {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: var(--chat-text-primary); /* Branco-osso */
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.3s ease;
+        }
+        .chatbot-close:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .chatbot-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            background-color: var(--chat-bg-primary); /* Fundo #2B2B2B */
+        }
+
+        .chatbot-messages::-webkit-scrollbar { width: 6px; }
+        .chatbot-messages::-webkit-scrollbar-track { background: var(--chat-bg-secondary); }
+        .chatbot-messages::-webkit-scrollbar-thumb { background: var(--chat-accent); border-radius: 3px; }
+        
+        .message {
+            display: flex;
+            gap: 0.8rem;
+            max-width: 90%;
+        }
+        .message.bot { align-self: flex-start; }
+        .message.user { align-self: flex-end; flex-direction: row-reverse; }
+
+        .message-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+            color: var(--chat-text-primary); /* Branco-osso */
+        }
+        .message.bot .message-avatar { background: var(--chat-accent); } /* Vinho */
+        .message.user .message-avatar { background-color: var(--chat-text-secondary); } /* Cinza */
+
+        .message-content {
+            max-width: calc(100% - 45px);
+        }
+
+        .message-bubble {
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            word-wrap: break-word;
+            color: var(--chat-text-primary); /* Branco-osso */
+            font-family: var(--font-body);
+        }
+        
+        .message.bot .message-bubble {
+            background-color: var(--chat-bg-secondary); /* Fundo #3E3E3E */
+            border-bottom-left-radius: 4px;
+        }
+        
+        .message.user .message-bubble {
+            background-color: var(--chat-accent); /* Vinho */
+            color: var(--chat-text-primary); /* Branco-osso */
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            color: var(--chat-text-secondary); /* Cinza claro */
+            margin-top: 0.4rem;
+        }
+        .message.user .message-time { text-align: right; }
+
+        /* Indicador de "digitando" */
+        .typing-indicator {
+            display: flex;
+            gap: 0.3rem;
+            padding: 0.8rem 1rem;
+        }
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background-color: var(--chat-accent); /* Vinho */
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+            30% { opacity: 1; transform: translateY(-8px); }
+        }
+
+        .chatbot-input-area {
+            padding: 1rem;
+            background-color: var(--chat-bg-secondary); /* Fundo #3E3E3E */
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        .chatbot-input {
+            flex: 1;
+            background-color: var(--chat-bg-primary); /* Fundo #2B2B2B */
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 0.8rem 1rem;
+            color: var(--chat-text-primary); /* Branco-osso */
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .chatbot-input:focus {
+            border-color: var(--chat-accent); /* Vinho */
+            background-color: var(--chat-bg-primary);
+        }
+        .chatbot-input::placeholder {
+            color: var(--text-secondary); /* Cinza claro */
+        }
+
+        .chatbot-send {
+            background: var(--chat-accent); /* Vinho */
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary); /* Branco-osso */
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+        .chatbot-send:hover {
+            transform: scale(1.05);
+            background-color: var(--chat-accent-hover);
+        }
+        .chatbot-send:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Media Query para Desktop (Adaptado do Elobot) */
+        @media (min-width: 768px) {
+             #chatbotButtonContainer {
+                max-width: 350px; /* Largura desktop para o container */
+            }
+            .chatbot-window {
+                left: auto;
+                bottom: 110px; /* Ajustado para nova bubble */
+                right: 30px;
+                width: 400px;
+                height: 550px;
+            }
+            
+            /* Ajusta o posicionamento do ícone minimizado no desktop */
+            .chatbot-minimized-icon {
+                right: 0; 
+                bottom: 0;
+            }
+            
+             /* Garante que o botão preview flua para a direita no desktop */
+             .chatbot-preview-button {
+                margin-left: auto;
+                margin-right: 0;
+            }
+        }
+
+        /* Media Queries para Responsividade (Geral) */
+        @media (max-width: 900px) { 
+            .direction-grid { grid-template-columns: 1fr; } 
+        }
+        @media (max-width: 768px) {
+            h1 { font-size: 2.8rem; } /* Leve ajuste para a nova fonte */
+            section { padding: 4rem 0; }
+            nav ul { display: none; flex-direction: column; position: absolute; top: 73px; left: 0; width: 100%; background-color: var(--background); text-align: center; gap: 0; border-bottom: 1px solid var(--border); }
+            nav ul.active { display: flex; }
+            nav li { width: 100%; }
+            nav a { display: block; padding: 1.5rem 0; border-bottom: 1px solid var(--border); }
+            nav li:last-child a { border-bottom: none; }
+            .menu-toggle { display: flex; }
+            #inicio h1 { font-size: 2.5rem; }
+            #inicio p { font-size: 1.1rem; }
+            .direction-card { padding: 3rem 2rem; min-height: 400px; }
+            footer { padding: 2rem 0; }
+        }
+        
+        /* ======================================================== */
+        /* --- ESTILOS: Seção Nossa História (Timeline) --- */
+        /* ======================================================== */
+        
+        /* Título Centralizado e Elegante */
+        .section-title {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+        .section-title h2 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            font-family: var(--font-heading);
+        }
+        .section-title p {
+            font-size: 1.1rem;
+            color: var(--accent-rosa); /* Destaque sutil */
+            font-style: italic;
+            font-family: var(--font-body);
+        }
+
+        /* Container da Timeline */
+        .timeline-container {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* A Linha do Tempo Vertical Central */
+        .timeline-container::after {
+            content: '';
+            position: absolute;
+            width: 4px;
+            background-color: var(--border);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -2px;
+            z-index: 1;
+        }
+
+        /* Cada Item da Timeline */
+        .timeline-item {
+            padding: 10px 40px;
+            position: relative;
+            background-color: inherit;
+            width: 50%;
+            
+            /* Animação (Invisível por padrão) */
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        /* Classe que será adicionada via JS */
+        .timeline-item.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Alterna os lados */
+        .timeline-item:nth-child(odd) {
+            left: 0;
+            padding-right: 30px;
+            text-align: right;
+        }
+        .timeline-item:nth-child(even) {
+            left: 50%;
+            padding-left: 30px;
+            text-align: left;
+        }
+
+        /* O Ícone na Linha do Tempo (Coração) */
+        .timeline-icon {
+            content: '♥';
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            background-color: var(--accent-vinho);
+            border: 4px solid var(--surface);
+            top: 30px;
+            border-radius: 50%;
+            z-index: 2;
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            font-family: sans-serif; /* Para o coração ficar bom */
+        }
+
+        .timeline-item:nth-child(odd) .timeline-icon {
+            right: 20px; 
+        }
+        .timeline-item:nth-child(even) .timeline-icon {
+            left: 20px;
+        }
+        
+        /* Data do Evento */
+        .timeline-date {
+            font-family: var(--font-body);
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--accent-rosa);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        /* O Card de Conteúdo */
+        .timeline-content {
+            padding: 1.5rem;
+            background-color: var(--surface);
+            border-radius: 8px;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border-bottom: 3px solid var(--accent-vinho);
+        }
+        .timeline-content h3 {
+            font-family: var(--font-heading);
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .timeline-content p {
+            font-family: var(--font-body);
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+        
+        /* Media Query para empilhar em telas menores */
+        @media screen and (max-width: 768px) {
+            .timeline-container::after {
+                left: 31px;
+            }
+            .timeline-item {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 25px;
+                text-align: left; /* Alinha tudo à esquerda */
+            }
+            .timeline-item:nth-child(odd) {
+                left: 0;
+                 text-align: left;
+            }
+            .timeline-item:nth-child(even) {
+                left: 0;
+                padding-left: 70px;
+                 text-align: left;
+            }
+            .timeline-icon {
+                left: 10px; /* Coloca o ícone fixo na esquerda */
+            }
+            .timeline-item:nth-child(odd) .timeline-icon,
+            .timeline-item:nth-child(even) .timeline-icon {
+                 left: 10px;
+            }
+        }
+        
+        /* ======================================================== */
+        /* --- ESTILOS: Seção Detalhes do Evento (Mapa/Cards) --- */
+        /* ======================================================== */
+
+        .map-wrapper {
+            max-width: 900px;
+            margin: 0 auto 4rem auto;
+            text-align: center;
+        }
+
+        .map-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* Proporção 16:9 */
+            height: 0;
+            overflow: hidden;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .map-iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* O filtro "Dark Mode" para o mapa */
+            filter: grayscale(1) invert(0.9) contrast(0.9);
+        }
+
+        .address-box {
+            background-color: var(--background);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem auto 0 auto;
+            max-width: 500px;
+            border: 1px solid var(--border);
+        }
+        .address-box h4 {
+            color: var(--text-primary);
+            font-family: var(--font-heading);
+            font-size: 1.3rem;
+        }
+        .address-box p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .map-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        /* Ajuste no botão outline para o tema dark */
+        #detalhes .btn-outline {
+            background-color: transparent;
+            color: var(--text-primary);
+            border-color: var(--border);
+        }
+         #detalhes .btn-outline:hover {
+            background-color: var(--surface);
+            border-color: var(--text-primary);
+         }
+
+        /* Grid dos Cards de Informação */
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .detail-card {
+            background-color: var(--background); /* Um tom mais escuro que o fundo da seção */
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .detail-card:hover {
+             transform: translateY(-5px);
+             box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+        }
+        
+        .detail-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .detail-card-content {
+            padding: 1.5rem;
+        }
+        
+        .detail-card-content h3 {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--text-primary);
+        }
+        .detail-card-content h4 {
+             font-family: var(--font-body);
+             font-size: 1rem;
+             font-weight: 700;
+             color: var(--accent-rosa); /* Destaque Rosa */
+             margin-top: -0.2rem;
+             margin-bottom: 1rem;
+        }
+        .detail-card-content p {
+             font-size: 0.9rem;
+             color: var(--text-secondary);
+             line-height: 1.6;
+             margin-bottom: 1rem;
+        }
+        .detail-card-content ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .detail-card-content li {
+            margin-bottom: 0.5rem;
+        }
+        /* ALTERAÇÃO SOLICITADA AQUI */
+        .detail-card-content a {
+            color: var(--text-primary); /* Branco/Branco-osso para destacar no fundo escuro */
+            font-weight: 600;
+            text-decoration: underline;
+            text-decoration-thickness: 1px;
+            text-underline-offset: 3px;
+        }
+        .detail-card-content a:hover {
+            color: var(--accent-rosa); /* Rosa blush no hover */
+        }
+        /* FIM DA ALTERAÇÃO SOLICITADA */
+        
+        /* ======================================================== */
+        /* --- ESTILOS: Seção Depoimentos (Carrossel e Modal) --- */
+        /* ======================================================== */
+
+        .carousel-wrapper {
+            position: relative;
+            max-width: 100%;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+        }
+
+        .carousel-container {
+            display: flex;
+            gap: 1.5rem;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding: 1rem 0; /* Espaço para sombra e scrollbar */
+            flex: 1;
+            scrollbar-width: thin; /* Firefox */
+            scrollbar-color: var(--accent-vinho) var(--surface); /* Firefox */
+        }
+
+        /* Webkit Scrollbar */
+        .carousel-container::-webkit-scrollbar {
+            height: 8px;
+        }
+        .carousel-container::-webkit-scrollbar-track {
+            background: var(--surface);
+            border-radius: 4px;
+        }
+        .carousel-container::-webkit-scrollbar-thumb {
+            background-color: var(--accent-vinho);
+            border-radius: 4px;
+        }
+
+        .depoimento-card-preview {
+            flex: 0 0 300px; /* Não encolhe, não cresce, base de 300px */
+            background-color: var(--surface);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            border-bottom: 3px solid var(--accent-vinho);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .depoimento-card-preview:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .preview-text {
+            font-family: var(--font-body);
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 1rem;
+            /* Lógica para encurtar o texto */
+            display: -webkit-box;
+            -webkit-line-clamp: 4; /* Mostra 4 linhas */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            height: 82px; /* (4 linhas * 1.7 * 0.95rem) ~ */
+        }
+
+        .preview-nome {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--accent-rosa);
+        }
+
+        .carousel-btn {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+        .carousel-btn:hover {
+            background-color: var(--accent-vinho);
+            border-color: var(--accent-vinho);
+            color: var(--text-primary);
+        }
+        .carousel-btn.prev {
+            margin-right: 1rem;
+        }
+        .carousel-btn.next {
+            margin-left: 1rem;
+        }
+
+        /* Esconde botões em telas mobile (usuário vai usar o swipe) */
+        @media (max-width: 768px) {
+            .carousel-btn {
+                display: none;
+            }
+            .carousel-wrapper {
+                 margin: 0 -2rem; /* Faz o carrossel ir de ponta a ponta */
+            }
+             .carousel-container {
+                 padding: 1rem 2rem; /* Adiciona padding de volta */
+             }
+        }
+
+        /* --- Estilos do Modal --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+            /* Oculto por padrão */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: var(--surface);
+            padding: 2.5rem;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            border-top: 4px solid var(--accent-vinho);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            position: relative;
+            /* Animação */
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 2rem;
+            cursor: pointer;
+        }
+
+        #modal-texto {
+            font-family: var(--font-body);
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+        }
+        #modal-nome {
+            font-family: var(--font-heading);
+            font-size: 1.3rem;
+            color: var(--accent-rosa);
+        }
+        #modal-data {
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        /* ======================================================== */
+        /* --- INVERSÃO DE CORES: Seção Depoimentos (Light) --- */
+        /* ======================================================== */
+
+        #depoimentos {
+            /* 1. Fundo da Seção: CLARO (Branco-osso) */
+            background-color: var(--text-primary); 
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* 2. Títulos da Seção (Escuros) */
+        #depoimentos .section-title h2 {
+            color: var(--background); /* Título principal escuro (cor do fundo original) */
+        }
+        #depoimentos .section-title p {
+            color: var(--accent-vinho); /* Subtítulo em VINHO */
+        }
+
+        /* 3. Cards do Carrossel (Fundo Branco Puro) */
+        #depoimentos .depoimento-card-preview {
+            background-color: #FFFFFF; /* Fundo branco puro para contrastar com o branco-osso */
+            border: 1px solid #e0e0e0; /* Borda cinza clara */
+            border-bottom: 3px solid var(--accent-vinho); /* Mantém o detalhe em vinho */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* Sombra mais suave */
+        }
+        #depoimentos .depoimento-card-preview:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            transform: translateY(-5px);
+        }
+
+        /* 4. Textos dos Cards (Escuros) */
+        #depoimentos .preview-text {
+            color: var(--surface); /* Texto do depoimento em cinza-escuro */
+        }
+        #depoimentos .preview-nome {
+            color: var(--accent-vinho); /* Nome em VINHO (como pedido) */
+        }
+
+        /* 5. Botões de Navegação do Carrossel */
+        #depoimentos .carousel-btn {
+            background-color: #FFFFFF;
+            border-color: var(--accent-vinho);
+            color: var(--accent-vinho); /* Ícone em vinho */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        #depoimentos .carousel-btn:hover {
+            background-color: var(--accent-vinho);
+            border-color: var(--accent-vinho);
+            color: var(--text-primary); /* Ícone em branco-osso no hover */
+        }
+
+        /* 6. Scrollbar */
+        #depoimentos .carousel-container::-webkit-scrollbar-track {
+            background: var(--accent-rosa); /* Fundo da barra de rolagem rosa claro */
+        }
+        #depoimentos .carousel-container {
+            /* Scrollbar para Firefox: (Thumb, Track) */
+            scrollbar-color: var(--accent-vinho) var(--accent-rosa);
+        }  
+
+        /* ======================================================== */
+        /* --- INVERSÃO DE CORES: Rodapé (Light) --- */
+        /* ======================================================== */
+
+        footer {
+            /* 1. Fundo da Seção: CLARO (Branco-osso) */
+            background-color: var(--text-primary); 
+            border-top: 1px solid #e0e0e0; /* Borda cinza clara */
+        }
+
+        /* 2. Texto de Copyright (Escuro) */
+        footer p {
+            color: var(--background); /* Texto escuro (cor do fundo original) */
+        }
+
+        /* 3. Ajuste no Botão (Tira o verde e usa o tema) */
+        .social-links .whatsapp {
+            background-color: var(--accent-vinho); /* Cor principal do tema (Vinho) */
+            color: var(--text-primary); /* Texto claro (Branco-osso) */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .social-links .whatsapp:hover {
+            background-color: var(--chat-accent-hover); /* Vinho mais escuro no hover */
+        }
+
+        /* 4. Centraliza o texto no botão (já que o ícone foi removido) */
+        .social-links a {
+            justify-content: center;
+        }
+        /* Esconde o SVG caso ainda exista (embora o HTML o remova) */
+        .social-links a svg {
+            display: none; 
+        }
+        /* ======================================================== */
+        /* --- AJUSTE CONTRASTE: Preview do Chatbot (Balão) --- */
+        /* ======================================================== */
+
+        /* Altera APENAS o balão de mensagem da PREVIEW */
+        .preview-message-bubble {
+            background-color: var(--text-primary); /* Fundo CLARO (Branco-osso) */
+            border-left: 4px solid var(--accent-vinho); /* Borda VINHO (um pouco mais grossa) */
+            color: var(--accent-vinho); /* Texto em VINHO */
+            font-weight: 600; /* Texto com mais peso para legibilidade */
+        }
+        
+        /* Garante que o texto interno (span) herde a cor */
+        .preview-message-bubble #preview-message-text {
+            color: var(--accent-vinho);
+        }
+
+        /* ======================================================== */
+        /* --- AJUSTE: Ícone do Chatbot (Substituir por imagem) --- */
+        /* ======================================================== */
+
+        /* Estilo para a imagem de avatar nos dois locais (botão e cabeçalho) */
+        .chatbot-icon-img {
+            width: 100%; /* Preenche o espaço do avatar */
+            height: 100%; /* Preenche o espaço do avatar */
+            object-fit: cover; /* Garante que a imagem não distorça */
+            border-radius: 50%; /* Deixa a imagem redonda */
+            display: block; /* Remove espaços extras */
+        }
+
+        /* Oculta o SVG do botão flutuante, caso ainda exista por algum motivo */
+        #chatbot-btn svg {
+            display: none;
+        }
+
+        /* Oculta o SVG do avatar do cabeçalho do chat, caso ainda exista */
+        .chatbot-header .chatbot-avatar svg {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <header id="main-header">
+        <div class="container header-container">
+            <a href="#inicio" class="logo">Laís ♥ Vitor</a>
+            <nav>
+                <ul id="nav-menu">
+                    <li><a href="#inicio">Início</a></li>
+                    <li><a href="#historia">Nossa História</a></li>
+                    <li><a href="#depoimentos">Recados</a></li>
+                    <li><a href="#detalhes">Detalhes</a></li>
+                </ul >
+            </nav>
+            <button class="menu-toggle" id="menu-toggle" aria-label="Abrir menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <!-- 2. Seção Hero com Carrossel Atualizada -->
+        <section id="inicio">
+            <!-- Container para os Corações -->
+            <div class="heart-container" id="heart-container"></div>
+
+            <div class="hero-carousel">
+                <!-- REVERTIDO PARA CARROSSEL ORIGINAL DE 3 SLIDES -->
+                <div class="hero-slide active" style="background-image: url('hero1.png');"></div>
+                <div class="hero-slide" style="background-image: url('hero2.png');"></div>
+                <div class="hero-slide" style="background-image: url('hero3.png');"></div>
+            </div>
+            <div class="hero-overlay"></div>
+            <div class="container hero-content">
+                <h1>Laís & Vitor</h1>
+                <p>Estamos muito felizes em compartilhar este momento com você. Confirme sua presença e veja todos os detalhes do nosso grande dia.</p>
+                <div class="hero-buttons">
+                    <button class="btn btn-primary" onclick="document.getElementById('chatbotButton').click()">Confirmar Presença</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Seção de Direcionamento Atualizada -->
+        <section id="direcionamento">
+            <div class="direction-grid">
+                <!-- Card 1: Detalhes do Evento -->
+                <div class="direction-card" style="background-image: url('dire1.png');">
+                    <div class="direction-card-content">
+                        <h3>Detalhes do Evento</h3>
+                        <p>Veja o endereço, horário e o traje recomendado para celebrar conosco.</p>
+                        <div class="direction-card-buttons">
+                            <button class="btn btn-accent" onclick="document.getElementById('chatbotButton').click()">Ver Detalhes</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card 2: Lista de Presentes -->
+                <div class="direction-card" style="background-image: url('dire2.png');">
+                    <div class="direction-card-content">
+                        <h3>Lista de Presentes</h3>
+                        <p>Sua presença é o nosso maior presente. Se desejar nos mimar, veja nossa lista de presentes virtual.</p>
+                        <div class="direction-card-buttons">
+                            <button class="btn btn-outline" onclick="document.getElementById('chatbotButton').click()">Acessar Lista de Presentes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 1. Bloco de HTML (Nossa História) - INSERIDO AQUI -->
+        <section id="historia">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Nossa História</h2>
+                    <p>Como um café se transformou em eternidade</p>
+                </div>
+
+                <div class="timeline-container">
+                    <div class="timeline-item">
+                        <div class="timeline-icon"></div>
+                        <div class="timeline-date">Maio 2018</div>
+                        <div class="timeline-content">
+                            <h3>O Acaso (ou Destino?)</h3>
+                            <p>Nossos caminhos se cruzaram em uma tarde chuvosa de outono, em um café lotado. Entre o vapor do expresso e o barulho da chuva, encontramos um ao outro. Foi uma conversa que deveria durar um café, mas que, sem sabermos, duraria uma vida inteira.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-icon"></div>
+                        <div class="timeline-date">Agosto 2018</div>
+                        <div class="timeline-content">
+                            <h3>O Primeiro "Sim"</h3>
+                            <p>O café virou jantar, o jantar virou cinema, e as conversas se tornaram a melhor parte do nosso dia. Sob um céu estrelado no parque, veio o pedido de namoro. Foi o primeiro "sim" de muitos que ainda estavam por vir.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-icon"></div>
+                        <div class="timeline-date">Junho 2022</div>
+                        <div class="timeline-content">
+                            <h3>Nosso Lar</h3>
+                            <p>Depois de anos construindo memórias, decidimos construir nosso próprio espaço. Adotamos o "Paçoca" (nosso golden retriever) e, entre caixas de mudança e latas de tinta, percebemos que "lar" não era um lugar, mas sim onde estávamos juntos.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-icon"></div>
+                        <div class="timeline-date">Dezembro 2024</div>
+                        <div class="timeline-content">
+                            <h3>O Pedido</h3>
+                            <p>Em uma viagem surpresa para a vinícola que amamos, no exato pôr do sol, veio a pergunta. Com o "Paçoca" carregando as alianças (quase kkk), foi um momento perfeitamente imperfeito. Um "sim" chorado, rodeado de vinho e amor.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-icon"></div>
+                        <div class="timeline-date">2025 - O Próximo Capítulo</div>
+                        <div class="timeline-content">
+                            <h3>O "Sim" Eterno</h3>
+                            <p>E agora, estamos aqui, contando os dias para celebrar o próximo e mais importante "sim" de nossas vidas com todos vocês. Mal podemos esperar para escrever este novo capítulo juntos.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 1. Bloco de HTML (Seção Recados/Depoimentos) - INSERIDO AQUI -->
+        <section id="depoimentos">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Recados Carinhosos</h2>
+                    <p>Mensagens dos nossos amigos e familiares</p>
+                </div>
+
+                <div class="carousel-wrapper">
+                    <button class="carousel-btn prev" id="carousel-prev" aria-label="Recado anterior">
+                        &lt;
+                    </button>
+                    
+                    <div class="carousel-container" id="carousel-container">
+                        </div>
+                    
+                    <button class="carousel-btn next" id="carousel-next" aria-label="Próximo recado">
+                        &gt;
+                    </button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 1. Bloco de HTML (Detalhes do Evento) - INSERIDO AQUI -->
+        <section id="detalhes">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Detalhes do Evento</h2>
+                    <p>Como chegar, o que vestir e onde ficar</p>
+                </div>
+
+                <div class="map-wrapper">
+                    <div class="map-container">
+                        <iframe 
+                            class="map-iframe"
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3657.430855734873!2d-46.69614142466986!3d-23.55290687880564!2m3!1f0!2f0!0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce5794a3a3028d%3A0x8f0f0c0f8f8f0c0f!2sBuffet%20Villa%20Lobos!5e0!3m2!1spt-BR!2sbr!4v1678886543210!5m2!1spt-BR!2sbr" 
+                            width="600" 
+                            height="450" 
+                            style="border:0;" 
+                            allowfullscreen="" 
+                            loading="lazy" 
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    </div>
+                    
+                    <div class="address-box">
+                        <h4>Buffet VillaLobos</h4>
+                        <p id="event-address">Av. Sete de Setembro, 1234 - São Paulo/SP</p>
+                    </div>
+
+                    <div class="map-buttons">
+                        <a href="https://google.com/maps/dir/?api=1&destination=BUFFET+VILLA+LOBOS+SAO+PAULO" target="_blank" class="btn btn-accent">Abrir no Google Maps</a>
+                        <a href="https://waze.com/ul?ll=-23.552906,-46.693952&navigate=yes" target="_blank" class="btn btn-outline">Abrir no Waze</a>
+                        <button id="copy-address-btn" class="btn btn-outline">Copiar Endereço</button>
+                    </div>
+                </div>
+
+                <div class="details-grid">
+                    <div class="detail-card">
+                        <img src="traje.png" alt="Inspiração de Traje Esporte Fino">
+                        <div class="detail-card-content">
+                            <h3>Traje (Dress Code)</h3>
+                            <h4>Esporte Fino</h4>
+                            <p>Queremos que todos se sintam elegantes e confortáveis. O traje esporte fino é ideal. Para as mulheres, vestidos leves. Para os homens, camisa social e blazer (sem gravata é ok!).</p>
+                        </div>
+                    </div>
+                    <div class="detail-card">
+                        <img src="hotel.png" alt="Fachada de Hotel">
+                        <div class="detail-card-content">
+                            <h3>Hospedagem</h3>
+                            <h4>Para nossos convidados</h4>
+                            <p>Para quem vem de fora, sugerimos alguns hotéis próximos ao local com condições especiais:</p>
+                            <ul>
+                                <li><a href="#" target="_blank">Hotel Blue Tree (10 min)</a></li>
+                                <li><a href="#" target="_blank">Ibis Budget (15 min)</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="detail-card">
+                        <img src="salao.png" alt="Mulher em salão de beleza">
+                        <div class="detail-card-content">
+                            <h3>Salão de Beleza</h3>
+                            <h4>Recomendações</h4>
+                            <p>Alguns salões parceiros próximos ao local para quem deseja se arrumar com tranquilidade:</p>
+                            <ul>
+                                <li><a href="#" target="_blank">Studio Beauty (5 min)</a></li>
+                                <li><a href="#" target="_blank">Espaço Hair (8 min)</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+
+    </main>
+    
+    <!-- 2. Bloco de HTML (Estrutura do Modal Depoimentos) - INSERIDO AQUI -->
+    <div id="depoimento-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close" id="modal-close" aria-label="Fechar modal">&times;</button>
+            <p id="modal-texto"></p>
+            <h4 id="modal-nome"></h4>
+            <span id="modal-data"></span>
+        </div>
+    </div>
+    
+    <!-- ======================================================== -->
+    <!-- --- CHATBOT LIA --- -->
+    <!-- ======================================================== -->
+    <div class="floating-chatbot">
+        <div id="chatbotButtonContainer">
+             <div class="chatbot-minimized-icon" id="minimizedIcon" aria-label="Abrir Chatbot">
+                <!-- SUBSTITUÍDO: Ícone de robô por imagem do casal -->
+                <img src="casal.png" alt="Foto do Casal" class="chatbot-icon-img">
+            </div>
+            <!-- Preview com Novo Nome e Mensagem -->
+            <div class="chatbot-preview-button" id="chatbotButton" aria-label="Abrir LIA">
+                <button class="preview-close" id="previewClose" aria-label="Minimizar Preview">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="preview-header">
+                    <div class="preview-avatar">
+                        <!-- SUBSTITUÍDO: Ícone de robô por imagem do casal -->
+                        <img src="casal.png" alt="Foto do Casal" class="chatbot-icon-img">
+                    </div>
+                    <div class="preview-info">
+                        <strong>LIA</strong>
+                        <span>Assistente Virtual</span>
+                    </div>
+                </div>
+                <div class="preview-message-bubble">
+                    <span id="preview-message-text">Olá! 👋 Sou o assistente virtual da Laís e do Vitor. Posso ajudar?</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Janela Principal do Chat com Novo Nome e Título -->
+        <div class="chatbot-window" id="chatbotWindow">
+            <div class="chatbot-header">
+                <div class="chatbot-header-avatar">
+                    <!-- SUBSTITUÍDO: Ícone de robô por imagem do casal -->
+                    <img src="casal.png" alt="Foto do Casal" class="chatbot-icon-img">
+                </div>
+                <div class="chatbot-header-info">
+                    <h3>LIA</h3>
+                    <p>Concierge Digital</p>
+                </div>
+                <button class="chatbot-close" id="chatbotClose" aria-label="Fechar chat">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="chatbot-messages" id="chatbotMessages">
+                <!-- Mensagem inicial inserida via JS -->
+            </div>
+
+            <div class="chatbot-input-area">
+                <input 
+                    type="text" 
+                    class="chatbot-input" 
+                    id="chatbotInput" 
+                    placeholder="Digite sua mensagem..."
+                    autocomplete="off"
+                >
+                <button class="chatbot-send" id="chatbotSend" aria-label="Enviar mensagem">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M232,128a8,8,0,0,1-8.53,8l-176,48A8,8,0,0,1,32,176V136H160a8,8,0,0,0,0-16H32V80a8,8,0,0,1,15.47-4l176,48A8,8,0,0,1,232,128Z"></path></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- --- FIM DO HTML DO CHATBOT --- -->
+
+
+    <!-- Rodapé -->
+    <footer>
+        <div class="container">
+            <div class="social-links">
+                <!-- SUBSTITUIÇÃO CONFORME SOLICITADO -->
+                <a href="http://wa.me/5511976232235" class="whatsapp" target="_blank">
+                    Falar com os Noivos</a>
+            </div>
+            <p>&copy; www.LEANTTRO.com</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Lógica do Header e Menu Mobile (MANTIDA)
+            const header = document.querySelector('header');
+            window.addEventListener('scroll', () => { header.classList.toggle('scrolled', window.scrollY > 50); });
+            
+            // Lógica do carrossel (REVERTIDA)
+            const slides = document.querySelectorAll('.hero-slide');
+            let currentSlide = 0;
+            if (slides.length > 0) {
+              setInterval(() => {
+                  slides[currentSlide].classList.remove('active');
+                  currentSlide = (currentSlide + 1) % slides.length;
+                  slides[currentSlide].classList.add('active');
+              }, 5000);
+            }
+
+            const menuToggle = document.getElementById('menu-toggle');
+            const navMenu = document.getElementById('nav-menu');
+            menuToggle.addEventListener('click', () => navMenu.classList.toggle('active'));
+            navMenu.querySelectorAll('a').forEach(link => { 
+                link.addEventListener('click', () => {
+                    if (navMenu.classList.contains('active')) {
+                        navMenu.classList.remove('active');
+                    }
+                }); 
+            });
+
+            // =============================================================
+            // --- LÓGICA DE ANIMAÇÃO DE CORAÇÕES ---
+            // =============================================================
+            const heartContainer = document.getElementById('heart-container');
+
+            function createHeart() {
+                if (!heartContainer) return; // Garante que o elemento existe
+
+                const heart = document.createElement('i');
+                heart.className = 'fas fa-heart heart';
+                heart.style.left = Math.random() * 100 + 'vw'; // Posição X aleatória
+                heart.style.fontSize = Math.random() * 15 + 10 + 'px'; // Tamanho aleatório (10px a 25px)
+                heart.style.animationDuration = Math.random() * 10 + 10 + 's'; // Duração de animação (10s a 20s)
+                
+                // Adiciona um pequeno desvio lateral para a animação parecer mais natural
+                heart.style.animationDelay = - (Math.random() * 5) + 's'; // Atraso aleatório para que não comecem todos juntos
+                
+                heartContainer.appendChild(heart);
+
+                // Remove o coração após a animação para limpar o DOM
+                setTimeout(() => {
+                    heart.remove();
+                }, 20000); // 20 segundos
+            }
+
+            // Gera um novo coração a cada 500ms
+            if (heartContainer) {
+                setInterval(createHeart, 500); 
+            }
+
+            // =============================================================
+            // --- INÍCIO: LÓGICA DO CHATBOT LIA (FINAL) ---
+            // =============================================================
+
+            const chatbotButton = document.getElementById('chatbotButton'); 
+            const chatbotWindow = document.getElementById('chatbotWindow'); 
+            const chatbotClose = document.getElementById('chatbotClose'); 
+            const chatbotInput = document.getElementById('chatbotInput');
+            const chatbotSend = document.getElementById('chatbotSend');
+            const chatbotMessages = document.getElementById('chatbotMessages');
+            const previewClose = document.getElementById('previewClose'); 
+            const minimizedIcon = document.getElementById('minimizedIcon'); 
+            const previewMessageEl = document.getElementById('preview-message-text');
+
+            let conversationHistory = []; 
+
+            // --- Lógica de Animação da Preview (FINAL) ---
+            const previewMessages = [
+                "Olá! 👋 Sou o assistente da Laís e do Vitor.",
+                "Posso ajudar com seu RSVP?",
+                "Tem dúvidas sobre o local ou traje?",
+                "Clique aqui para falar comigo!"
+            ];
+            let messageIndex = 0;
+            let previewInterval;
+
+            function minimizePreview() {
+                chatbotButton.classList.add('minimized');
+                minimizedIcon.classList.add('minimized');
+                clearInterval(previewInterval);
+            }
+            function maximizePreview() {
+                chatbotButton.classList.remove('minimized');
+                minimizedIcon.classList.remove('minimized');
+                startPreviewAnimation();
+            }
+            function startPreviewAnimation() {
+                 if (previewInterval) clearInterval(previewInterval);
+                 previewInterval = setInterval(() => {
+                    messageIndex = (messageIndex + 1) % previewMessages.length;
+                    if(previewMessageEl) {
+                        previewMessageEl.style.opacity = 0;
+                        setTimeout(() => {
+                            previewMessageEl.textContent = previewMessages[messageIndex];
+                            previewMessageEl.style.opacity = 1;
+                        }, 300);
+                    }
+                }, 4000);
+            }
+            if (previewClose) previewClose.addEventListener('click', function(e) { e.stopPropagation(); minimizePreview(); });
+            if (minimizedIcon) minimizedIcon.addEventListener('click', maximizePreview);
+            if (previewMessageEl) startPreviewAnimation();
+
+
+            // --- Lógica de Abrir/Fechar Chat ---
+            function toggleChat(e) {
+                if (e) e.preventDefault();
+                const isActive = chatbotWindow.classList.contains('active');
+                if (isActive) {
+                    chatbotWindow.classList.remove('active');
+                    chatbotButton.classList.remove('active');
+                    minimizedIcon.classList.remove('active');
+                    if (!chatbotButton.classList.contains('minimized')) {
+                         startPreviewAnimation();
+                    }
+                } else {
+                    chatbotWindow.classList.add('active');
+                    chatbotButton.classList.add('active'); 
+                    minimizedIcon.classList.add('active'); 
+                    clearInterval(previewInterval); 
+                    
+                    setTimeout(() => {
+                        if (chatbotMessages.children.length === 0) {
+                            startChat();
+                        }
+                        chatbotInput.focus();
+                    }, 300);
+                }
+            }
+            
+            if (chatbotButton) chatbotButton.addEventListener('click', toggleChat);
+            if (chatbotClose) chatbotClose.addEventListener('click', toggleChat);
+
+            // --- Funções de Chat (INÍCIO ATUALIZADO) ---
+            function startChat() {
+                addMessage(
+                    "Olá! 👋 Sou a LIA, a assistente virtual da Laís e do Vitor.<br><br>Estou aqui para ajudar com sua confirmação de presença, dúvidas sobre o local, traje ou lista de presentes. O que gostaria de fazer?", 
+                    false
+                );
+            }
+
+            function getCurrentTime() {
+                const now = new Date();
+                return now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            }
+
+            function addMessage(text, isUser = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+                let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                formattedText = formattedText.replace(/\n/g, '<br>');
+                formattedText = formattedText.replace(/<a href/g, '<a style="color: var(--accent-vinho); text-decoration: underline;" target="_blank" href');
+
+                conversationHistory.push({ 
+                    role: isUser ? 'user' : 'bot', 
+                    text: text, 
+                    time: getCurrentTime()
+                });
+
+                messageDiv.innerHTML = `
+                    <div class="message-avatar">
+                        <i class="fas fa-${isUser ? 'user' : 'robot'}"></i>
+                    </div>
+                    <div class="message-content">
+                        <div class="message-bubble">${formattedText}</div>
+                        <div class="message-time">${getCurrentTime()}</div>
+                    </div>
+                `;
+                if (chatbotMessages) {
+                    chatbotMessages.appendChild(messageDiv);
+                    chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+                }
+            }
+
+            function showTypingIndicator() {
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'message bot typing-message';
+                typingDiv.id = 'typing-indicator';
+                typingDiv.innerHTML = `
+                    <div class="message-avatar"><i class="fas fa-robot"></i></div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            <div class="typing-indicator"><span></span><span></span><span></span></div>
+                        </div>
+                    </div>
+                `;
+                if (chatbotMessages) {
+                    chatbotMessages.appendChild(typingDiv);
+                    chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+                }
+            }
+
+            function removeTypingIndicator() {
+                const typingDiv = document.getElementById('typing-indicator');
+                if (typingDiv && typingDiv.parentNode) {
+                    typingDiv.parentNode.removeChild(typingDiv);
+                }
+            }
+
+            function handleSendMessage() {
+                const messageText = chatbotInput.value.trim();
+                if (messageText === '' || chatbotSend.disabled) return;
+
+                addMessage(messageText, true);
+                chatbotInput.value = '';
+                chatbotSend.disabled = true;
+                showTypingIndicator();
+
+                setTimeout(() => {
+                    removeTypingIndicator();
+                    addMessage(getBotResponse(messageText), false);
+                    chatbotSend.disabled = false;
+                    chatbotInput.focus();
+                }, 1500);
+            }
+            
+            // --- 6. Cérebro do Bot (FINAL) ---
+            function getBotResponse(userText) {
+                const lowerText = userText.toLowerCase();
+
+                if (lowerText.includes('olá') || lowerText.includes('oi')) {
+                    return "Olá! Como posso te ajudar com os detalhes do casamento da Laís e do Vitor?";
+                }
+
+                if (lowerText.includes('rsvp') || lowerText.includes('confirmar') || lowerText.includes('presença')) {
+                    // No futuro, isso iniciaria um fluxo de coleta de dados.
+                    return "Que ótimo que você veio confirmar! Para iniciar o RSVP, por favor, me diga o nome completo que estava no convite.";
+                }
+
+                if (lowerText.includes('presente') || lowerText.includes('lista')) {
+                    return "A Laís e o Vitor têm uma lista de presentes virtual! Você pode acessar clicando aqui: <a href='#'>[Link da Lista de Presentes]</a>. A lista é convertida em PIX para os noivos.";
+                }
+
+                if (lowerText.includes('local') || lowerText.includes('endereço') || lowerText.includes('onde')) {
+                    return "A cerimônia e a festa serão no mesmo local:<br><strong>Buffet VillaLobos</strong><br>Av. Sete de Setembro, 1234 - São Paulo/SP.<br><br>Você pode ver o mapa aqui: <a href='#'>[Link do Google Maps]</a>";
+                }
+
+                if (lowerText.includes('traje') || lowerText.includes('roupa') || lowerText.includes('vestir')) {
+                    return "O traje recomendado é <strong>Esporte Fino</strong>. Queremos que todos estejam elegantes e confortáveis para celebrar conosco!";
+                }
+
+                if (lowerText.includes('obrigado') || lowerText.includes('obrigada')) {
+                    return "Eu que agradeço! Se precisar de mais alguma coisa, é só perguntar. 😊";
+                }
+
+                return "Desculpe, não entendi essa pergunta. Tente perguntar sobre RSVP, Local, Traje ou Lista de Presentes.";
+            }
+            
+            if (chatbotSend) chatbotSend.addEventListener('click', handleSendMessage);
+            if (chatbotInput) chatbotInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); handleSendMessage(); }
+            });
+            
+            // =============================================================
+            // --- Lógica da Animação da Timeline - INSERIDO AQUI ---
+            // =============================================================
+            const timelineItems = document.querySelectorAll('.timeline-item');
+
+            const observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        observer.unobserve(entry.target); // Para animar apenas uma vez
+                    }
+                });
+            }, {
+                root: null, // viewport
+                rootMargin: '0px',
+                threshold: 0.3 // 30% do item visível
+            });
+
+            timelineItems.forEach(item => {
+                observer.observe(item);
+            });
+            
+            // =============================================================
+            // --- INÍCIO: Lógica do Botão "Copiar Endereço" ---
+            // =============================================================
+            const copyButton = document.getElementById('copy-address-btn');
+            const addressText = document.getElementById('event-address');
+
+            if (copyButton && addressText) {
+                copyButton.addEventListener('click', () => {
+                    const address = addressText.innerText;
+                    
+                    navigator.clipboard.writeText(address).then(() => {
+                        // Sucesso
+                        const originalText = copyButton.innerText;
+                        copyButton.innerText = "Copiado! 👍";
+                        copyButton.disabled = true;
+                        
+                        setTimeout(() => {
+                            copyButton.innerText = originalText;
+                            copyButton.disabled = false;
+                        }, 2000);
+
+                    }).catch(err => {
+                        // Erro (raro, mas bom ter)
+                        console.error('Falha ao copiar endereço: ', err);
+                        // Usando console.log em vez de alert()
+                        console.log("Não foi possível copiar o endereço. Tente manualmente.");
+                    });
+                });
+            }
+            // --- FIM: Lógica do Botão "Copiar Endereço" ---
+            
+            // =============================================================
+            // --- INÍCIO: Lógica do Carrossel e Modal de Depoimentos ---
+            // =============================================================
+            
+            // --- 1. DUMMY DATA (Simulando o fetch de 'laisvitor_depoimentos') ---
+            // No futuro, você vai substituir isso por: const dummyData = await fetch(...).then(res => res.json());
+            const dummyData = [
+                {
+                    nome: "Ana Beatriz (Madrinha)",
+                    data: "10/10/2025",
+                    texto: "Meus queridos, que alegria imensa fazer parte deste momento! Acompanho essa história desde o começo, do primeiro café (que eu sei que foi hilário) até agora. Vocês são a prova de que o amor verdadeiro é construído com paciência, risadas e muito companheirismo. A Lais é a irmã que eu escolhi e o Vitor é o cara incrível que a faz mais feliz do que nunca. Amo vocês!"
+                },
+                {
+                    nome: "Carlos (Pai do Noivo)",
+                    data: "08/10/2025",
+                    texto: "Filho, você sempre foi nosso orgulho. E Lais, querida, você trouxe uma luz nova para nossa família. Vê-los construir um lar, uma vida, com tanto respeito um pelo outro, enche meu coração de felicidade. Que este 'sim' seja a continuação de uma vida inteira de bênçãos. Estamos ansiosos pelo grande dia!"
+                },
+                {
+                    nome: "Juliana e Marcos",
+                    data: "05/10/2025",
+                    texto: "Lá e Vitão! Finalmente! Casal, vocês são pura inspiração. Mal podemos esperar para celebrar com vocês, dançar até o chão e comemorar essa união que já era certa desde o dia que apresentamos o Paçoca pra vocês kkkk. Preparem-se porque vamos festejar muito! Felicidades mil!"
+                },
+                {
+                    nome: "Dona Maria (Avó da Noiva)",
+                    data: "02/10/2025",
+                    texto: "Minha neta querida, parece que foi ontem que você era uma menina correndo pelo jardim. Hoje é uma mulher linda, prestes a se casar com um homem bom. Vitor, cuide bem da minha menina. Que Deus abençoe essa união com muita sabedoria e netinhos (kkk). Com amor, Vovó."
+                }
+            ];
+
+            // --- 2. Seletores do DOM ---
+            const carouselContainer = document.getElementById('carousel-container');
+            const btnPrev = document.getElementById('carousel-prev');
+            const btnNext = document.getElementById('carousel-next');
+            
+            const modalOverlay = document.getElementById('depoimento-modal');
+            const modalClose = document.getElementById('modal-close');
+            const modalTexto = document.getElementById('modal-texto');
+            const modalNome = document.getElementById('modal-nome');
+            const modalData = document.getElementById('modal-data');
+
+            // --- 3. Função para Popular o Carrossel ---
+            function populateCarousel(data) {
+                if (!carouselContainer) return;
+                
+                carouselContainer.innerHTML = ''; // Limpa o container
+                
+                data.forEach(depoimento => {
+                    const card = document.createElement('div');
+                    card.className = 'depoimento-card-preview';
+                    
+                    // Armazena os dados completos no elemento (melhor prática)
+                    card.dataset.fullText = depoimento.texto;
+                    card.dataset.nome = depoimento.nome;
+                    card.dataset.data = depoimento.data;
+
+                    card.innerHTML = `
+                        <p class="preview-text">${depoimento.texto}</p>
+                        <h4 class="preview-nome">${depoimento.nome}</h4>
+                    `;
+                    
+                    // Adiciona o listener de clique para abrir o modal
+                    card.addEventListener('click', () => openModal(depoimento));
+                    
+                    carouselContainer.appendChild(card);
+                });
+            }
+
+            // --- 4. Funções do Modal ---
+            function openModal(depoimento) {
+                if (!modalOverlay) return;
+                
+                modalTexto.innerText = depoimento.texto;
+                modalNome.innerText = depoimento.nome;
+                modalData.innerText = `Enviado em: ${depoimento.data}`;
+                
+                modalOverlay.classList.add('active');
+            }
+
+            function closeModal() {
+                if (!modalOverlay) return;
+                modalOverlay.classList.remove('active');
+            }
+
+            // --- 5. Funções de Navegação do Carrossel ---
+            function scrollCarousel(direction) {
+                if (!carouselContainer) return;
+                const scrollAmount = 324; // Largura do card (300px) + gap (1.5rem = 24px)
+                carouselContainer.scrollBy({
+                    left: direction === 'next' ? scrollAmount : -scrollAmount,
+                    behavior: 'smooth'
+                });
+            }
+
+            // --- 6. Inicialização e Event Listeners ---
+            if (carouselContainer) {
+                 populateCarousel(dummyData); // Popula o carrossel ao carregar
+            }
+           
+            if (btnPrev) btnPrev.addEventListener('click', () => scrollCarousel('prev'));
+            if (btnNext) btnNext.addEventListener('click', () => scrollCarousel('next'));
+            if (modalClose) modalClose.addEventListener('click', closeModal);
+            if (modalOverlay) {
+                // Fecha o modal se clicar fora do conteúdo
+                modalOverlay.addEventListener('click', (event) => {
+                    if (event.target === modalOverlay) {
+                        closeModal();
+                    }
+                });
+            }
+            // --- FIM: Lógica do Carrossel e Modal ---
+        });
+    </script>
+</body>
+</html>

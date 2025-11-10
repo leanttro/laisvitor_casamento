@@ -1,0 +1,9 @@
+Flask
+psycopg2-binary
+python-dotenv
+gunicorn
+Flask-Cors
+google-generativeai
+requests
+google-api-python-client
+google-auth-httplib2
