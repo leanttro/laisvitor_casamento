@@ -102,10 +102,9 @@
             background-color: var(--surface); padding: 2rem; border-radius: 12px;
             border: 1px solid var(--border); text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
-        /* CORREÇÃO DE COR: O número deve ser branco para contraste no fundo escuro. */
         .stat-number {
             font-family: var(--font-heading); font-size: 3rem; font-weight: 700;
-            color: var(--text-primary); /* Alterado para Branco-Osso */
+            color: var(--text-primary); /* CORREÇÃO APLICADA: Cor Branca para Legibilidade */
             line-height: 1; margin-bottom: 0.5rem;
         }
         .stat-label { font-size: 1rem; color: var(--text-primary); font-weight: 500; }
@@ -178,7 +177,7 @@
                     <label for="password">Chave de Acesso</label>
                     <input type="password" id="password" required>
                 </div>
-                <!-- CORREÇÃO: Usamos type="button" e ID para garantir que o JS dispare, evitando o refresh nativo. -->
+                <!-- MUDANÇA: Type="button" para evitar submissão nativa -->
                 <button type="button" class="btn btn-primary" id="login-button" style="width: 100%;">Entrar</button> 
                 <p class="error-msg" id="login-error">Credenciais inválidas.</p>
             </form>
@@ -346,13 +345,14 @@
 
     <script>
         const API_BASE_URL = 'https://laisvitor-casamento.onrender.com';
-        let authToken = localStorage.getItem('admin_token');
-        
+
         // --- FUNÇÕES DE UTILS ---
         function getAuthHeaders() {
+            // LÊ O TOKEN SEMPRE DO LOCAL STORAGE, GARANTINDO QUE O VALOR SEJA O MAIS ATUALIZADO APÓS O LOGIN
+            const token = localStorage.getItem('admin_token');
             return {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${authToken}`
+                'Authorization': `Bearer ${token}`
             };
         }
         function formatCurrency(value) {
@@ -372,17 +372,11 @@
             localStorage.removeItem('admin_token');
         }
 
-        // NOVO: Função que lida com o login
-        async function handleLogin(e) {
-            if (e) e.preventDefault(); // Previne o refresh caso seja chamado pelo submit do form
-
+        // --- Lógica de Login (Corrigida para usar o ID do botão) ---
+        async function handleLogin() {
             const user = document.getElementById('username').value;
             const pass = document.getElementById('password').value;
             const errorMsg = document.getElementById('login-error');
-            const loginBtn = document.getElementById('login-button');
-
-            loginBtn.disabled = true;
-            errorMsg.style.display = 'none';
 
             try {
                 const response = await fetch(`${API_BASE_URL}/api/login_admin`, {
@@ -393,8 +387,7 @@
 
                 if (response.ok) {
                     const data = await response.json();
-                    authToken = data.token;
-                    localStorage.setItem('admin_token', authToken);
+                    localStorage.setItem('admin_token', data.token); // Salva o token
                     errorMsg.style.display = 'none';
                     showPanel();
                 } else {
@@ -405,25 +398,30 @@
                 console.error('Erro no login:', error);
                 errorMsg.textContent = 'Erro ao conectar ao servidor.';
                 errorMsg.style.display = 'block';
-            } finally {
-                loginBtn.disabled = false;
             }
         }
+        
+        // CORREÇÃO: Vincula o clique do botão (type="button") diretamente à função
+        document.getElementById('login-button').addEventListener('click', handleLogin); 
+        
+        // Também permite o ENTER no formulário
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            handleLogin();
+        });
 
-        // CORREÇÃO DE INICIALIZAÇÃO: Atribui a função de login a ambos os eventos (Clique e Enter no Form)
-        document.getElementById('login-button').addEventListener('click', handleLogin);
-        document.getElementById('login-form').addEventListener('submit', handleLogin); // Mantém o suporte ao Enter
 
         document.getElementById('logout-btn').addEventListener('click', showLogin);
 
         // --- CARREGAMENTO DO DASHBOARD (MÉTODO PRINCIPAL) ---
         async function loadDashboard() {
-            if (!authToken) return showLogin();
+            // Verifica o token no localStorage
+            if (!localStorage.getItem('admin_token')) return showLogin();
             
             loadDashboardStats();
             loadGiftsTable();
-            loadConvidadosTable(); // NOVO: Carrega a tabela de convidados
-            // loadModerationList(); // Descomentar quando o GET for criado no app.py
+            loadConvidadosTable(); 
+            // loadModerationList(); 
         }
         
         async function loadDashboardStats() {
@@ -431,17 +429,20 @@
                 const response = await fetch(`${API_BASE_URL}/api/admin/dashboard_stats`, { headers: getAuthHeaders() });
                 if (response.ok) {
                     const stats = await response.json();
-                    // Animação simples dos números
                     animateValue("stat-confirmed", 0, stats.confirmados, 1000);
                     animateValue("stat-pending", 0, stats.pendentes_rsvp, 1000);
                     animateValue("stat-messages", 0, stats.recados_moderacao, 1000);
+                } else if (response.status === 403) {
+                     // ERRO 403 (FORBIDDEN) -> Token expirado ou inválido
+                    showLogin();
+                    console.error("Token inválido ou expirado. Redirecionando para login.");
                 }
             } catch (error) {
                 console.error('Erro ao carregar stats:', error);
             }
         }
         
-        // Função utilitária para animar números (Mantida do original)
+        // Função utilitária para animar números
         function animateValue(id, start, end, duration) {
             const obj = document.getElementById(id);
             if (!obj) return;
@@ -458,7 +459,7 @@
         }
         
         // =============================================================
-        // --- FUNÇÕES DE GERENCIAMENTO DE CONVIDADOS (NOVO) ---
+        // --- FUNÇÕES DE GERENCIAMENTO DE CONVIDADOS ---
         // =============================================================
         const convidadosTableBody = document.querySelector('#convidados-table tbody');
         const addConvidadoModal = document.getElementById('add-convidado-modal');
@@ -502,6 +503,10 @@
                     loadConvidadosTable(); // Recarrega a tabela
                     loadDashboardStats(); // Atualiza contagem de pendentes
                     setTimeout(() => addConvidadoModal.style.display = 'none', 3000);
+                } else if (response.status === 403) {
+                    convidadoErrorMsgEl.textContent = 'Falha de Autorização (403). Relogue.';
+                    convidadoErrorMsgEl.style.display = 'block';
+                    showLogin();
                 } else {
                     const error = await response.json();
                     convidadoErrorMsgEl.textContent = error.mensagem || 'Falha ao adicionar convidado.';
@@ -519,7 +524,14 @@
             convidadosTableBody.innerHTML = '<tr id="convidados-loading"><td colspan="6" style="text-align: center;">Carregando lista de convidados...</td></tr>';
             try {
                 const response = await fetch(`${API_BASE_URL}/api/admin/convidados`, { headers: getAuthHeaders() });
-                if (!response.ok) throw new Error('Falha ao carregar convidados admin');
+                if (!response.ok) {
+                    if (response.status === 403) {
+                        convidadosTableBody.innerHTML = '<tr><td colspan="6" style="color:var(--status-rejected); text-align: center;">Autorização Expirada. Por favor, faça o login novamente.</td></tr>';
+                        showLogin();
+                        return;
+                    }
+                    throw new Error('Falha ao carregar convidados admin');
+                }
                 
                 const convidados = await response.json();
                 convidadosTableBody.innerHTML = '';
@@ -550,7 +562,7 @@
         }
         
         // =============================================================
-        // --- FUNÇÕES DE GERENCIAMENTO DE PRESENTE (MANTIDAS) ---
+        // --- FUNÇÕES DE GERENCIAMENTO DE PRESENTE ---
         // =============================================================
         const giftsTableBody = document.querySelector('#gifts-table tbody');
         
@@ -559,7 +571,15 @@
             try {
                 // Endpoint para ADMIN (inclui inativos)
                 const response = await fetch(`${API_BASE_URL}/api/admin/presentes`, { headers: getAuthHeaders() });
-                if (!response.ok) throw new Error('Falha ao carregar presentes admin');
+                if (!response.ok) {
+                    if (response.status === 403) {
+                         // Trata 403
+                         giftsTableBody.innerHTML = '<tr><td colspan="4" style="color:var(--status-rejected); text-align: center;">Autorização Expirada. Por favor, faça o login novamente.</td></tr>';
+                         showLogin();
+                         return;
+                    }
+                    throw new Error('Falha ao carregar presentes admin');
+                }
                 
                 const gifts = await response.json();
                 giftsTableBody.innerHTML = '';
@@ -601,6 +621,9 @@
                 if (response.ok) {
                     loadGiftsTable(); // Recarrega a tabela para atualizar o status
                     loadDashboardStats();
+                } else if (response.status === 403) {
+                    alert('Falha de Autorização (403). Relogue.');
+                    showLogin();
                 } else {
                     alert('Falha ao alterar status.');
                 }
@@ -609,7 +632,7 @@
             }
         }
 
-        // --- LÓGICA DO MODAL DE ADICIONAR PRESENTE (MANTIDA) ---
+        // --- LÓGICA DO MODAL DE ADICIONAR PRESENTE ---
         const addGiftModal = document.getElementById('add-gift-modal');
         const openModalBtn = document.getElementById('open-add-gift-modal');
         const closeModalBtn = document.getElementById('close-add-gift-modal');
@@ -652,6 +675,10 @@
                     loadGiftsTable(); // Recarrega a tabela
                     loadDashboardStats();
                     setTimeout(() => addGiftModal.style.display = 'none', 1500);
+                } else if (response.status === 403) {
+                     errorMsgEl.textContent = 'Falha de Autorização (403). Relogue.';
+                     errorMsgEl.style.display = 'block';
+                     showLogin();
                 } else {
                     const error = await response.json();
                     errorMsgEl.textContent = error.mensagem || 'Falha ao adicionar presente.';
@@ -667,7 +694,7 @@
 
         // --- INICIALIZAÇÃO ---
         // Tenta carregar o painel se já houver token
-        if (authToken) {
+        if (localStorage.getItem('admin_token')) {
             showPanel();
         }
     </script>
