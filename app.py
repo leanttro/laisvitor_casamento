@@ -11,7 +11,7 @@ import psycopg2.extras
 
 # ======================================================================
 # API BACKEND - CASAMENTO LAÍS & VITOR
-# Versão: 1.2 (Correção da coluna de Admin)
+# Versão: 1.3 (CORREÇÃO DE EMERGÊNCIA: DESATIVA HASH NO LOGIN)
 # ======================================================================
 
 load_dotenv()
@@ -37,6 +37,7 @@ def get_db_connection():
 # ======================================================================
 # 1. SETUP DO BANCO DE DADOS (Auto-Criação das Tabelas)
 # ======================================================================
+# Mantive o hashing no SEED INICIAL, mas ele será ignorado se a tabela já tiver dados.
 def setup_database():
     """Cria as tabelas necessárias se elas não existirem."""
     conn = get_db_connection()
@@ -96,8 +97,8 @@ def setup_database():
         # Usuário: admin | Senha: 123 (Hash SHA256 para '123')
         cur.execute("SELECT COUNT(*) FROM laisvitor_admin")
         if cur.fetchone()[0] == 0:
-             hash_padrao = hashlib.sha256("123".encode()).hexdigest()
-             # INSERÇÃO USANDO O CAMPO CORRETO E SALVANDO O HASH
+             # ESTE HASH SERÁ SALVO, MAS O LOGIN DE EMERGÊNCIA IGNORA
+             hash_padrao = hashlib.sha256("123".encode()).hexdigest() 
              cur.execute("INSERT INTO laisvitor_admin (username, chave_admin) VALUES (%s, %s)", ('admin', hash_padrao))
              
              # --- SEED DE PRESENTE (Para que a página presentes.html não venha vazia) ---
@@ -121,6 +122,7 @@ def setup_database():
 # ======================================================================
 # 2. MIDDLEWARE & UTILITÁRIOS
 # ======================================================================
+# A função hash_password permanece, mas não é usada no login de emergência
 def hash_password(password):
     """Gera hash SHA256 da senha."""
     return hashlib.sha256(password.encode()).hexdigest()
@@ -148,9 +150,12 @@ def login_admin():
     conn = get_db_connection()
     try:
         cur = conn.cursor()
-        pass_hash = hash_password(chave_admin)
-        # CORRIGIDO: Agora consulta o campo 'chave_admin' que armazena o hash
-        cur.execute("SELECT id FROM laisvitor_admin WHERE username = %s AND chave_admin = %s", (username, pass_hash))
+        
+        # --- MUDANÇA DE EMERGÊNCIA: COMPARAÇÃO DE TEXTO PURO ---
+        # ATENÇÃO: ISSO É INSEGURO E DEVE SER REVERTIDO.
+        cur.execute("SELECT id FROM laisvitor_admin WHERE username = %s AND chave_admin = %s", (username, chave_admin))
+        # --------------------------------------------------------
+        
         admin = cur.fetchone()
         
         if admin:
