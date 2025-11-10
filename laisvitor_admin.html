@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel Admin | Laís & Vitor</title>
-    <!-- Font Awesome & Google Fonts (Mesmas do Index) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Raleway:wght@400;500;700&display=swap" rel="stylesheet">
 
@@ -164,7 +163,6 @@
 </head>
 <body>
 
-    <!-- TELA DE LOGIN -->
     <div id="login-screen">
         <div class="login-box">
             <h2>Acesso Restrito</h2>
@@ -177,14 +175,12 @@
                     <label for="password">Chave de Acesso</label>
                     <input type="password" id="password" required>
                 </div>
-                <!-- MUDANÇA: Type="button" para evitar submissão nativa -->
                 <button type="button" class="btn btn-primary" id="login-button" style="width: 100%;">Entrar</button> 
                 <p class="error-msg" id="login-error">Credenciais inválidas.</p>
             </form>
         </div>
     </div>
 
-    <!-- PAINEL ADMINISTRATIVO (Inicialmente Oculto) -->
     <div id="admin-panel">
         <header>
             <div class="container admin-header">
@@ -194,7 +190,6 @@
         </header>
 
         <main>
-            <!-- Hero Painel -->
             <section id="admin-hero">
                 <div class="hero-overlay"></div>
                 <div class="container hero-content">
@@ -204,7 +199,6 @@
             </section>
 
             <div class="container">
-                <!-- Big Numbers -->
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-number" id="stat-confirmed">-</div>
@@ -221,7 +215,6 @@
                 </div>
             </div>
 
-            <!-- Seção 1: Moderação de Recados -->
             <section class="admin-section">
                 <div class="container">
                     <div class="section-header">
@@ -229,12 +222,10 @@
                     </div>
                     <div class="moderation-grid" id="moderation-list">
                         <p style="color: var(--text-secondary);">Carregando recados...</p>
-                        <!-- Recados serão carregados aqui via JS -->
-                    </div>
+                        </div>
                 </div>
             </section>
 
-            <!-- Seção 2: Gerenciar Presentes (Com Botão para Modal) -->
             <section class="admin-section">
                 <div class="container">
                     <div class="section-header">
@@ -252,7 +243,6 @@
                 </div>
             </section>
 
-            <!-- Seção 3: Lista de Convidados (Com Botão para Modal) -->
             <section class="admin-section">
                  <div class="container">
                     <div class="section-header">
@@ -279,15 +269,11 @@
         </main>
     </div>
 
-    <!-- ------------------------------------------------------- -->
-    <!-- --- MODAL DE ADICIONAR PRESENTE (FORMULÁRIO CRUD) --- -->
-    <!-- ------------------------------------------------------- -->
     <div id="add-gift-modal" class="modal-overlay">
         <div class="modal-content">
             <button class="modal-close" id="close-add-gift-modal">&times;</button>
-            <h3>Adicionar Novo Presente</h3>
-            <form id="add-gift-form">
-                <div class="input-group">
+            <h3 id="gift-modal-title">Adicionar Novo Presente</h3> <form id="add-gift-form">
+                <input type="hidden" id="gift-id"> <div class="input-group">
                     <label for="gift-name">Nome do Presente</label>
                     <input type="text" id="gift-name" required>
                 </div>
@@ -313,10 +299,7 @@
         </div>
     </div>
     
-    <!-- ------------------------------------------------------- -->
-    <!-- --- NOVO MODAL: ADICIONAR CONVIDADO (FORMULÁRIO CRUD) --- -->
-    <!-- ------------------------------------------------------- -->
-     <div id="add-convidado-modal" class="modal-overlay">
+    <div id="add-convidado-modal" class="modal-overlay">
         <div class="modal-content">
             <button class="modal-close" id="close-add-convidado-modal">&times;</button>
             <h3>Adicionar Novo Convidado</h3>
@@ -336,7 +319,6 @@
     </div>
 
 
-    <!-- LIA Admin Placeholder -->
     <div style="position: fixed; bottom: 15px; right: 15px; cursor: pointer;" onclick="alert('LIA: Olá! Em breve, eu vou te ajudar a gerar relatórios e enviar lembretes por aqui!')">
         <div style="width: 60px; height: 60px; background: var(--accent-vinho); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
              <img src="casal.png" alt="LIA Admin" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; opacity: 0.9;">
@@ -345,6 +327,24 @@
 
     <script>
         const API_BASE_URL = 'https://laisvitor-casamento.onrender.com';
+
+        // --- VARIÁVEIS GLOBAIS PARA O CRUD DE PRESENTES ---
+        const addGiftModal = document.getElementById('add-gift-modal');
+        const giftModalTitleEl = document.getElementById('gift-modal-title');
+        const addGiftForm = document.getElementById('add-gift-form');
+        const saveGiftBtn = document.getElementById('save-gift-btn');
+        const giftIdInput = document.getElementById('gift-id');
+        const giftNameInput = document.getElementById('gift-name');
+        const giftValueInput = document.getElementById('gift-value');
+        const giftUrlInput = document.getElementById('gift-url');
+        const giftDescriptionInput = document.getElementById('gift-description');
+        const giftsTableBody = document.querySelector('#gifts-table tbody');
+        const errorMsgEl = document.getElementById('gift-error-msg');
+        const successMsgEl = document.getElementById('gift-success-msg');
+        
+        let isEditingGift = false; // Flag para controlar se está editando ou criando
+        // ----------------------------------------------------
+
 
         // --- FUNÇÕES DE UTILS ---
         function getAuthHeaders() {
@@ -641,9 +641,8 @@
         }
         
         // =============================================================
-        // --- FUNÇÕES DE GERENCIAMENTO DE PRESENTE ---
+        // --- FUNÇÕES DE GERENCIAMENTO DE PRESENTE (ATUALIZADAS) ---
         // =============================================================
-        const giftsTableBody = document.querySelector('#gifts-table tbody');
         
         async function loadGiftsTable() {
             giftsTableBody.innerHTML = '<tr id="gifts-loading"><td colspan="4" style="text-align: center;">Carregando lista de presentes...</td></tr>';
@@ -673,7 +672,7 @@
                         <td>${formatCurrency(gift.valor_cota)}</td>
                         <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                         <td>
-                            <button class="btn-action" style="background:#555; color:white;">Editar</button>
+                            <button class="btn-action" style="background:#555; color:white;" onclick="editGift(${gift.id})">Editar</button>
                             <button class="btn-action ${gift.esta_ativo ? 'btn-danger' : 'btn-success'}" 
                                 onclick="toggleGiftStatus(${gift.id}, ${!gift.esta_ativo})">
                                 ${gift.esta_ativo ? 'Desativar' : 'Ativar'}
@@ -711,18 +710,57 @@
                 console.error('Erro ao alternar status:', error);
             }
         }
+        
+        // --- FUNÇÃO PARA ABRIR MODAL EM MODO EDIÇÃO ---
+        window.editGift = async function(giftId) {
+            isEditingGift = true;
+            errorMsgEl.style.display = 'none';
+            successMsgEl.style.display = 'none';
+            
+            // 1. Buscando dados do presente (necessário para preencher o formulário)
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/presentes/${giftId}`, { headers: getAuthHeaders() });
+                if (response.status === 404) throw new Error("Presente não encontrado.");
+                if (response.status === 403) { showLogin(); return; }
+                if (!response.ok) throw new Error("Erro ao carregar dados do presente.");
 
-        // --- LÓGICA DO MODAL DE ADICIONAR PRESENTE ---
-        const addGiftModal = document.getElementById('add-gift-modal');
+                const gift = await response.json();
+
+                // 2. Preencher o Modal
+                giftModalTitleEl.textContent = 'Editar Presente';
+                saveGiftBtn.textContent = 'Atualizar Presente';
+                
+                giftIdInput.value = gift.id; // Guarda o ID no campo oculto
+                giftNameInput.value = gift.nome_presente;
+                giftValueInput.value = gift.valor_cota;
+                giftUrlInput.value = gift.imagem_url;
+                giftDescriptionInput.value = gift.descricao;
+                
+                // 3. Abrir o Modal
+                addGiftModal.style.display = 'flex';
+
+            } catch (error) {
+                console.error('Erro ao editar presente:', error);
+                alert('Não foi possível carregar os dados para edição.');
+            }
+        }
+
+
+        // --- LÓGICA DO MODAL DE ADICIONAR/EDITAR PRESENTE ---
         const openModalBtn = document.getElementById('open-add-gift-modal');
         const closeModalBtn = document.getElementById('close-add-gift-modal');
-        const addGiftForm = document.getElementById('add-gift-form');
-        const errorMsgEl = document.getElementById('gift-error-msg');
-        const successMsgEl = document.getElementById('gift-success-msg');
 
+        // Abre o modal em modo 'Criação'
         openModalBtn.addEventListener('click', () => {
+            isEditingGift = false;
             addGiftModal.style.display = 'flex';
+            giftModalTitleEl.textContent = 'Adicionar Novo Presente';
+            saveGiftBtn.textContent = 'Salvar Presente';
+            
             addGiftForm.reset(); // Limpa o formulário ao abrir
+            giftUrlInput.value = "presente_padrao.png"; // Resetar o valor default
+            giftIdInput.value = ''; // Garantir que o ID esteja limpo para criação
+            
             errorMsgEl.style.display = 'none';
             successMsgEl.style.display = 'none';
         });
@@ -730,27 +768,31 @@
         closeModalBtn.addEventListener('click', () => addGiftModal.style.display = 'none');
         document.getElementById('cancel-add-gift').addEventListener('click', () => addGiftModal.style.display = 'none');
         
-        // Envio do formulário (Criação do presente)
+        // Envio do formulário (Criação ou Edição)
         addGiftForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             errorMsgEl.style.display = 'none';
             successMsgEl.style.display = 'none';
             
             const giftData = {
-                nome_presente: document.getElementById('gift-name').value,
-                valor_cota: parseFloat(document.getElementById('gift-value').value),
-                imagem_url: document.getElementById('gift-url').value,
-                descricao: document.getElementById('gift-description').value,
+                nome_presente: giftNameInput.value,
+                valor_cota: parseFloat(giftValueInput.value),
+                imagem_url: giftUrlInput.value,
+                descricao: giftDescriptionInput.value,
             };
+
+            const method = isEditingGift ? 'PUT' : 'POST';
+            const url = isEditingGift ? `${API_BASE_URL}/api/admin/presentes/${giftIdInput.value}` : `${API_BASE_URL}/api/admin/presentes`;
             
             try {
-                const response = await fetch(`${API_BASE_URL}/api/admin/presentes`, {
-                    method: 'POST',
+                const response = await fetch(url, {
+                    method: method,
                     headers: getAuthHeaders(),
                     body: JSON.stringify(giftData)
                 });
                 
                 if (response.ok) {
+                    successMsgEl.textContent = isEditingGift ? 'Presente atualizado com sucesso!' : 'Presente adicionado com sucesso!';
                     successMsgEl.style.display = 'block';
                     loadGiftsTable(); // Recarrega a tabela
                     loadDashboardStats();
@@ -761,11 +803,11 @@
                      showLogin();
                 } else {
                     const error = await response.json();
-                    errorMsgEl.textContent = error.mensagem || 'Falha ao adicionar presente.';
+                    errorMsgEl.textContent = error.mensagem || `Falha ao ${isEditingGift ? 'atualizar' : 'adicionar'} presente.`;
                     errorMsgEl.style.display = 'block';
                 }
             } catch (error) {
-                console.error('Erro ao adicionar presente:', error);
+                console.error('Erro na operação de presente:', error);
                 errorMsgEl.textContent = 'Erro de conexão com a API.';
                 errorMsgEl.style.display = 'block';
             }
