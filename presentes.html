@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Presentes | Laís & Vitor</title>
+    <meta name="description" content="Escolha um presente para celebrar a união de Laís e Vitor.">
+    <!-- Importação da Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Fontes: Cormorant Garamond e Raleway -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- HERANÇA DE VARIÁVEIS E ESTILOS GLOBAIS DO INDEX.HTML --- */
+        :root {
+            --background: #2B2B2B;
+            --surface: #3E3E3E;
+            --border: #505050;
+            --text-primary: #F5F5F5;
+            --text-secondary: #B0B0B0;
+            --accent-vinho: #9B2B3F;
+            --accent-rosa: #DDC4C4;
+            
+            --chat-bg-primary: var(--background);
+            --chat-bg-secondary: var(--surface);
+            --chat-text-primary: var(--text-primary);
+            --chat-text-secondary: var(--text-secondary);
+            --chat-accent: var(--accent-vinho);
+            --chat-accent-hover: #7c2232;
+
+            --font-body: 'Raleway', sans-serif;
+            --font-heading: 'Cormorant Garamond', serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-body);
+            background-color: var(--background);
+            color: var(--text-secondary);
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container { max-width: 1120px; margin: 0 auto; padding: 0 2rem; }
+        section { padding: 6rem 0; }
+
+        h1, h2, h3 {
+            font-family: var(--font-heading);
+            color: var(--text-primary);
+            font-weight: 600;
+            line-height: 1.3;
+        }
+        a { color: var(--text-primary); text-decoration: none; transition: color 0.3s ease; }
+        a:hover { color: var(--accent-rosa); }
+
+        /* --- HEADER (Idêntico ao Index, com link ativo ajustado) --- */
+        header {
+            position: fixed; top: 0; left: 0; width: 100%; padding: 1rem 0;
+            background-color: rgba(43, 43, 43, 0.95); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border); z-index: 1000;
+        }
+        .header-container { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-family: var(--font-heading); font-size: 1.5rem; font-weight: 700; color: var(--accent-rosa); }
+        nav ul { display: flex; list-style: none; gap: 2rem; }
+        nav a { color: var(--text-secondary); font-weight: 500; padding: 0.5rem 0; border-bottom: 2px solid transparent; }
+        nav a:hover, nav a.active { color: var(--text-primary); border-bottom-color: var(--accent-vinho); }
+        .menu-toggle { display: none; flex-direction: column; justify-content: space-around; width: 24px; height: 24px; background: transparent; border: none; cursor: pointer; }
+        .menu-toggle .bar { width: 100%; height: 2px; background-color: var(--text-primary); }
+
+        /* --- HERO DA PÁGINA DE PRESENTES --- */
+        #presentes-hero {
+            min-height: 400px; /* Menor que a home */
+            display: flex; align-items: center; justify-content: center; text-align: center;
+            padding: 120px 2rem 60px; position: relative; color: #ffffff;
+            background-image: url('hero2.png'); /* Reuso de imagem existente */
+            background-size: cover; background-position: center;
+        }
+        .hero-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.65); z-index: 1; }
+        .hero-content { position: relative; z-index: 2; max-width: 700px; }
+        #presentes-hero h1 { font-size: 3rem; margin-bottom: 1rem; }
+        #presentes-hero p { font-size: 1.2rem; color: rgba(255, 255, 255, 0.9); }
+
+        /* --- GRID DE PRESENTES --- */
+        #lista-presentes { background-color: var(--background); }
+        .gifts-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem; margin-top: 2rem;
+        }
+        /* Reuso do estilo .detail-card do index.html para consistência */
+        .gift-card {
+            background-color: var(--surface);
+            border-radius: 12px; overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            border: 1px solid var(--border);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex; flex-direction: column;
+        }
+        .gift-card:hover { transform: translateY(-5px); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+        
+        .gift-img-container {
+            height: 200px; overflow: hidden; border-bottom: 1px solid var(--border);
+            background-color: #eee; /* Placeholder background */
+            display: flex; align-items: center; justify-content: center; color: #999;
+        }
+        .gift-img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .gift-content { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; }
+        .gift-title { font-size: 1.3rem; color: var(--text-primary); margin-bottom: 0.5rem; }
+        .gift-description { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 1.5rem; flex-grow: 1; }
+        .gift-price { font-size: 1.4rem; font-weight: 700; color: var(--accent-rosa); margin-bottom: 1.5rem; font-family: var(--font-heading); }
+        
+        .btn-gift {
+            width: 100%; padding: 0.8rem; border: none; border-radius: 8px;
+            background-color: var(--accent-vinho); color: var(--text-primary);
+            font-weight: 700; font-family: var(--font-body); cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .btn-gift:hover { background-color: var(--chat-accent-hover); }
+
+        /* --- FOOTER (Idêntico ao Index) --- */
+        footer {
+            padding: 3rem 0; background-color: var(--text-primary); /* Invertido conforme index */
+            text-align: center; margin-top: auto;
+        }
+        footer p { color: var(--background); }
+
+        /* --- RESPONSIVIDADE (Básica herdada) --- */
+        @media (max-width: 768px) {
+            nav ul { display: none; position: absolute; top: 100%; left: 0; width: 100%; background: var(--background); flex-direction: column; padding: 1rem; }
+            nav ul.active { display: flex; }
+            .menu-toggle { display: flex; }
+            #presentes-hero h1 { font-size: 2.5rem; }
+        }
+
+        /* ======================================================== */
+        /* --- ESTILOS COMPLETOS DO CHATBOT LIA (Do index.html) --- */
+        /* ======================================================== */
+        .floating-chatbot { position: fixed; bottom: 15px; right: 15px; left: 15px; z-index: 9999; }
+        #chatbotButtonContainer { width: 100%; max-width: 300px; margin-left: auto; margin-right: 0; position: relative; }
+        .chatbot-preview-button { width: 100%; background-color: var(--chat-bg-secondary); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; cursor: pointer; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5); transition: all 0.3s ease; animation: pulse-dark 2s infinite; opacity: 1; visibility: visible; transform: scale(1); }
+        .chatbot-preview-button:hover { transform: scale(1.03); box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7); }
+        .chatbot-preview-button.active { opacity: 0; transform: scale(0.9); visibility: hidden; height: 0; padding: 0; }
+        .preview-close { position: absolute; top: 5px; right: 5px; background: none; border: none; color: var(--chat-text-secondary); font-size: 0.8rem; cursor: pointer; padding: 5px; z-index: 100; }
+        .chatbot-minimized-icon { width: 60px; height: 60px; background: var(--chat-accent); border-radius: 50%; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: var(--chat-text-primary); cursor: pointer; position: absolute; bottom: 0; right: 0; opacity: 0; visibility: hidden; transform: scale(0.5); transition: all 0.3s ease; }
+        .chatbot-minimized-icon.minimized { opacity: 1; visibility: visible; transform: scale(1); animation: none; }
+        .chatbot-minimized-icon:hover { background: var(--chat-accent-hover); }
+        .chatbot-preview-button.minimized { opacity: 0; visibility: hidden; height: 0; padding: 0; }
+        .chatbot-minimized-icon.active { opacity: 0; visibility: hidden; transform: scale(0.5); }
+        .preview-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+        .preview-avatar { width: 35px; height: 35px; background: var(--chat-accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-heading); font-weight: 600; font-size: 1.2rem; color: var(--chat-text-primary); flex-shrink: 0; }
+        .preview-info strong { font-family: var(--font-body); font-weight: 700; color: var(--chat-text-primary); font-size: 0.9rem; }
+        .preview-info span { display: block; font-size: 0.75rem; color: var(--chat-text-secondary); }
+        .preview-message-bubble { background-color: var(--text-primary); border-left: 4px solid var(--accent-vinho); padding: 0.8rem 1rem; border-radius: 8px; font-size: 0.85rem; line-height: 1.5; color: var(--accent-vinho); font-family: var(--font-body); font-weight: 600; }
+        .preview-message-bubble #preview-message-text { transition: opacity 0.3s ease-in-out; color: var(--accent-vinho); }
+        @keyframes pulse-dark { 0%, 100% { box-shadow: 0 8px 25px rgba(155, 43, 63, 0.2); } 50% { box-shadow: 0 8px 35px rgba(155, 43, 63, 0.4); } }
+        .chatbot-window { position: fixed; bottom: 15px; right: 15px; left: 15px; width: calc(100% - 30px); max-width: 400px; height: 70vh; max-height: 550px; background-color: var(--chat-bg-secondary); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4); display: none; flex-direction: column; overflow: hidden; z-index: 9998; opacity: 0; transform: translateY(20px); transition: all 0.3s ease; }
+        .chatbot-window.active { display: flex; opacity: 1; transform: translateY(0); }
+        .chatbot-header { background: linear-gradient(135deg, var(--chat-accent), var(--chat-accent-hover)); padding: 1.2rem 1.5rem; display: flex; align-items: center; gap: 1rem; position: relative; }
+        .chatbot-header-avatar { width: 45px; height: 45px; background-color: rgba(255, 255, 255, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: var(--chat-text-primary); flex-shrink: 0; }
+        .chatbot-header-info h3 { font-family: var(--font-heading); font-size: 1.4rem; letter-spacing: 1px; margin-bottom: 0.2rem; color: var(--chat-text-primary); text-transform: uppercase; font-weight: 600; }
+        .chatbot-header-info p { font-size: 0.75rem; opacity: 0.9; color: var(--chat-text-primary); font-family: var(--font-body); }
+        .chatbot-close { margin-left: auto; background: none; border: none; color: var(--chat-text-primary); font-size: 1.5rem; cursor: pointer; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background-color 0.3s ease; }
+        .chatbot-close:hover { background-color: rgba(255, 255, 255, 0.2); }
+        .chatbot-messages { flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; background-color: var(--chat-bg-primary); }
+        .chatbot-messages::-webkit-scrollbar { width: 6px; }
+        .chatbot-messages::-webkit-scrollbar-track { background: var(--chat-bg-secondary); }
+        .chatbot-messages::-webkit-scrollbar-thumb { background: var(--chat-accent); border-radius: 3px; }
+        .message { display: flex; gap: 0.8rem; max-width: 90%; }
+        .message.bot { align-self: flex-start; }
+        .message.user { align-self: flex-end; flex-direction: row-reverse; }
+        .message-avatar { width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; color: var(--chat-text-primary); }
+        .message.bot .message-avatar { background: var(--chat-accent); }
+        .message.user .message-avatar { background-color: var(--chat-text-secondary); }
+        .message-content { max-width: calc(100% - 45px); }
+        .message-bubble { padding: 0.8rem 1rem; border-radius: 12px; font-size: 0.95rem; line-height: 1.6; word-wrap: break-word; color: var(--chat-text-primary); font-family: var(--font-body); }
+        .message.bot .message-bubble { background-color: var(--chat-bg-secondary); border-bottom-left-radius: 4px; }
+        .message.user .message-bubble { background-color: var(--chat-accent); color: var(--chat-text-primary); border-bottom-right-radius: 4px; }
+        .message-time { font-size: 0.7rem; color: var(--chat-text-secondary); margin-top: 0.4rem; }
+        .message.user .message-time { text-align: right; }
+        .typing-indicator { display: flex; gap: 0.3rem; padding: 0.8rem 1rem; }
+        .typing-indicator span { width: 8px; height: 8px; background-color: var(--chat-accent); border-radius: 50%; animation: typing 1.4s infinite; }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing { 0%, 60%, 100% { opacity: 0.3; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-8px); } }
+        .chatbot-input-area { padding: 1rem; background-color: var(--chat-bg-secondary); border-top: 1px solid var(--border); display: flex; gap: 0.8rem; }
+        .chatbot-input { flex: 1; background-color: var(--chat-bg-primary); border: 1px solid var(--border); border-radius: 20px; padding: 0.8rem 1rem; color: var(--chat-text-primary); font-family: var(--font-body); font-size: 0.9rem; outline: none; transition: all 0.3s ease; }
+        .chatbot-input:focus { border-color: var(--chat-accent); background-color: var(--chat-bg-primary); }
+        .chatbot-input::placeholder { color: var(--text-secondary); }
+        .chatbot-send { background: var(--chat-accent); border: none; border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; color: var(--text-primary); font-size: 1.1rem; cursor: pointer; transition: all 0.3s ease; flex-shrink: 0; }
+        .chatbot-send:hover { transform: scale(1.05); background-color: var(--chat-accent-hover); }
+        .chatbot-send:disabled { opacity: 0.5; cursor: not-allowed; }
+        .chatbot-icon-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }
+        @media (min-width: 768px) { #chatbotButtonContainer { max-width: 350px; } .chatbot-window { left: auto; bottom: 110px; right: 30px; width: 400px; height: 550px; } .chatbot-minimized-icon { right: 0; bottom: 0; } .chatbot-preview-button { margin-left: auto; margin-right: 0; } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container header-container">
+            <a href="index.html" class="logo">Laís ♥ Vitor</a>
+            <nav>
+                <ul id="nav-menu">
+                    <li><a href="index.html">Início</a></li>
+                    <li><a href="index.html#historia">Nossa História</a></li>
+                    <li><a href="index.html#detalhes">Detalhes</a></li>
+                    <li><a href="presentes.html" class="active">Lista de Presentes</a></li>
+                </ul>
+            </nav>
+            <button class="menu-toggle" id="menu-toggle"><i class="fas fa-bars" style="color: var(--text-primary);"></i></button>
+        </div>
+    </header>
+
+    <main>
+        <section id="presentes-hero">
+            <div class="hero-overlay"></div>
+            <div class="container hero-content">
+                <h1>Nossa Lista de Presentes</h1>
+                <p>Sua presença é o nosso maior presente! Mas se quiser nos mimar com algo especial para o início da nossa vida a dois, ficaremos muito felizes.</p>
+            </div>
+        </section>
+
+        <section id="lista-presentes">
+            <div class="container">
+                <div class="gifts-grid" id="gifts-grid">
+                    <!-- Loading state enquanto busca do backend -->
+                    <p style="text-align: center; grid-column: 1/-1; color: var(--text-secondary);">Carregando presentes...</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ======================================================== -->
+    <!-- --- CHATBOT LIA (ESTRUTURA COMPLETA) --- -->
+    <!-- ======================================================== -->
+    <div class="floating-chatbot">
+        <div id="chatbotButtonContainer">
+             <div class="chatbot-minimized-icon" id="minimizedIcon" aria-label="Abrir Chatbot">
+                <img src="casal.png" alt="LIA" class="chatbot-icon-img">
+            </div>
+            <div class="chatbot-preview-button" id="chatbotButton" aria-label="Abrir LIA">
+                <button class="preview-close" id="previewClose" aria-label="Minimizar Preview"><i class="fas fa-times"></i></button>
+                <div class="preview-header">
+                    <div class="preview-avatar"><img src="casal.png" alt="LIA" class="chatbot-icon-img"></div>
+                    <div class="preview-info"><strong>LIA</strong><span>Assistente Virtual</span></div>
+                </div>
+                <div class="preview-message-bubble"><span id="preview-message-text">Olá! 👋 Posso ajudar com a lista de presentes? 🎁</span></div>
+            </div>
+        </div>
+
+        <div class="chatbot-window" id="chatbotWindow">
+            <div class="chatbot-header">
+                <div class="chatbot-header-avatar"><img src="casal.png" alt="LIA" class="chatbot-icon-img"></div>
+                <div class="chatbot-header-info"><h3>LIA</h3><p>Concierge Digital</p></div>
+                <button class="chatbot-close" id="chatbotClose" aria-label="Fechar chat"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="chatbot-messages" id="chatbotMessages"></div>
+            <div class="chatbot-input-area">
+                <input type="text" class="chatbot-input" id="chatbotInput" placeholder="Digite sua mensagem..." autocomplete="off">
+                <button class="chatbot-send" id="chatbotSend" aria-label="Enviar mensagem"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Laís & Vitor. Feito com ♥.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configuração da API (Ajuste se seu backend estiver em outro lugar)
+            const API_BASE_URL = 'http://127.0.0.1:5000'; // URL padrão do Flask local
+
+            // --- Menu Mobile ---
+            document.getElementById('menu-toggle').addEventListener('click', () => {
+                document.getElementById('nav-menu').classList.toggle('active');
+            });
+
+            // --- FETCH DA LISTA DE PRESENTES ---
+            async function fetchGifts() {
+                const grid = document.getElementById('gifts-grid');
+                try {
+                    // Usa o endpoint público que criamos no app.py
+                    const response = await fetch(`${API_BASE_URL}/api/presentes`);
+                    if (!response.ok) throw new Error('Erro ao buscar presentes');
+                    
+                    const gifts = await response.json();
+                    grid.innerHTML = ''; // Limpa o loading
+
+                    if (gifts.length === 0) {
+                         grid.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Nenhum presente disponível no momento.</p>';
+                         return;
+                    }
+
+                    gifts.forEach(gift => {
+                        // Formata o valor para R$
+                        const valorFormatado = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(gift.valor_cota);
+                        
+                        // Define um ícone padrão baseado no nome (simples por enquanto)
+                        let iconClass = 'fa-gift';
+                        const lowerName = gift.nome_presente.toLowerCase();
+                        if (lowerName.includes('jantar') || lowerName.includes('almoço')) iconClass = 'fa-utensils';
+                        else if (lowerName.includes('viagem') || lowerName.includes('lua de mel') || lowerName.includes('hotel')) iconClass = 'fa-plane';
+                        else if (lowerName.includes('spa') || lowerName.includes('massagem')) iconClass = 'fa-spa';
+                        else if (lowerName.includes('brinde') || lowerName.includes('bebida')) iconClass = 'fa-wine-glass-alt';
+
+                        const card = document.createElement('div');
+                        card.className = 'gift-card';
+                        card.innerHTML = `
+                            <div class="gift-img-container"><i class="fas ${iconClass} fa-3x" style="opacity: 0.3;"></i></div>
+                            <div class="gift-content">
+                                <h3 class="gift-title">${gift.nome_presente}</h3>
+                                <p class="gift-description">${gift.descricao || 'Um presente especial para os noivos.'}</p>
+                                <div class="gift-price">${valorFormatado}</div>
+                                <button class="btn-gift" onclick="triggerChatGift('${gift.nome_presente}', '${valorFormatado}')">Presentear</button>
+                            </div>
+                        `;
+                        grid.appendChild(card);
+                    });
+
+                } catch (error) {
+                    console.error('Erro:', error);
+                    grid.innerHTML = '<p style="text-align: center; grid-column: 1/-1; color: #ff6b6b;">Não foi possível carregar a lista de presentes. Tente novamente mais tarde.</p>';
+                }
+            }
+            fetchGifts(); // Chama a função ao carregar a página
+
+            // --- LÓGICA DO CHATBOT LIA (Copiada e Adaptada do index.html) ---
+            const chatbotButton = document.getElementById('chatbotButton'); 
+            const chatbotWindow = document.getElementById('chatbotWindow'); 
+            const chatbotClose = document.getElementById('chatbotClose'); 
+            const chatbotInput = document.getElementById('chatbotInput');
+            const chatbotSend = document.getElementById('chatbotSend');
+            const chatbotMessages = document.getElementById('chatbotMessages');
+            const previewClose = document.getElementById('previewClose'); 
+            const minimizedIcon = document.getElementById('minimizedIcon'); 
+            const previewMessageEl = document.getElementById('preview-message-text');
+
+            let conversationHistory = []; 
+            let previewInterval;
+            let messageIndex = 0;
+            const previewMessages = [
+                "Olá! 👋 Posso ajudar com a lista de presentes? 🎁",
+                "Clique em 'Presentear' para saber como funciona.",
+                "Todo carinho é bem-vindo! ❤️"
+            ];
+
+            function minimizePreview() {
+                chatbotButton.classList.add('minimized');
+                minimizedIcon.classList.add('minimized');
+                clearInterval(previewInterval);
+            }
+            function maximizePreview() {
+                chatbotButton.classList.remove('minimized');
+                minimizedIcon.classList.remove('minimized');
+                startPreviewAnimation();
+            }
+            function startPreviewAnimation() {
+                 if (previewInterval) clearInterval(previewInterval);
+                 previewInterval = setInterval(() => {
+                    messageIndex = (messageIndex + 1) % previewMessages.length;
+                    if(previewMessageEl) {
+                        previewMessageEl.style.opacity = 0;
+                        setTimeout(() => {
+                            previewMessageEl.textContent = previewMessages[messageIndex];
+                            previewMessageEl.style.opacity = 1;
+                        }, 300);
+                    }
+                }, 4000);
+            }
+
+            function toggleChat(e) {
+                if (e) e.preventDefault();
+                const isActive = chatbotWindow.classList.contains('active');
+                if (isActive) {
+                    chatbotWindow.classList.remove('active');
+                    chatbotButton.classList.remove('active');
+                    minimizedIcon.classList.remove('active');
+                    if (!chatbotButton.classList.contains('minimized')) startPreviewAnimation();
+                } else {
+                    chatbotWindow.classList.add('active');
+                    chatbotButton.classList.add('active'); 
+                    minimizedIcon.classList.add('active'); 
+                    clearInterval(previewInterval); 
+                    setTimeout(() => {
+                        if (chatbotMessages.children.length === 0) startChat();
+                        chatbotInput.focus();
+                    }, 300);
+                }
+            }
+
+            // Expondo a função globalmente para ser usada pelos botões 'Presentear'
+            window.triggerChatGift = function(giftName, giftValue) {
+                if (!chatbotWindow.classList.contains('active')) {
+                    toggleChat();
+                }
+                // Pequeno delay para garantir que a janela abriu antes de mandar a mensagem
+                setTimeout(() => {
+                    addMessage(`Olá LIA! Gostaria de presentear os noivos com: **${giftName}** (${giftValue}). Como faço?`, true);
+                    showTypingIndicator();
+                    setTimeout(() => {
+                        removeTypingIndicator();
+                        // Substitua a chave PIX e o telefone real aqui
+                        addMessage(`Que gesto lindo! 🥰<br><br>Para presentear com **${giftName}**, você pode fazer um PIX para a chave dos noivos:<br><br>🔑 **(11) 99999-9999** (Celular)<br><br>Depois, é só enviar o comprovante por aqui ou no WhatsApp deles. Muito obrigada pelo carinho!`, false);
+                    }, 1500);
+                }, 500);
+            };
+
+            function startChat() {
+                addMessage("Olá! 👋 Sou a LIA. Estou aqui para ajudar com a Lista de Presentes. Se tiver dúvidas sobre algum item ou como funciona, é só perguntar!", false);
+            }
+            function getCurrentTime() { return new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); }
+            function addMessage(text, isUser = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+                let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+                conversationHistory.push({ role: isUser ? 'user' : 'bot', text: text, time: getCurrentTime() });
+                messageDiv.innerHTML = `<div class="message-avatar"><i class="fas fa-${isUser ? 'user' : 'robot'}"></i></div><div class="message-content"><div class="message-bubble">${formattedText}</div><div class="message-time">${getCurrentTime()}</div></div>`;
+                chatbotMessages.appendChild(messageDiv);
+                chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+            }
+            function showTypingIndicator() {
+                const typingDiv = document.createElement('div'); typingDiv.className = 'message bot typing-message'; typingDiv.id = 'typing-indicator';
+                typingDiv.innerHTML = `<div class="message-avatar"><i class="fas fa-robot"></i></div><div class="message-content"><div class="message-bubble"><div class="typing-indicator"><span></span><span></span><span></span></div></div></div>`;
+                chatbotMessages.appendChild(typingDiv); chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+            }
+            function removeTypingIndicator() { const typingDiv = document.getElementById('typing-indicator'); if (typingDiv) typingDiv.remove(); }
+            function handleSendMessage() {
+                const text = chatbotInput.value.trim(); if (text === '' || chatbotSend.disabled) return;
+                addMessage(text, true); chatbotInput.value = ''; chatbotSend.disabled = true; showTypingIndicator();
+                setTimeout(() => { removeTypingIndicator(); addMessage(getBotResponse(text), false); chatbotSend.disabled = false; chatbotInput.focus(); }, 1500);
+            }
+            function getBotResponse(text) {
+                const lower = text.toLowerCase();
+                if (lower.includes('pix') || lower.includes('pagar') || lower.includes('como funciona')) return "É super simples! Nossa lista é virtual. Você escolhe o presente simbólico e o valor é transferido via PIX para os noivos usarem na Lua de Mel ou na casa nova. A chave PIX é: **(11) 99999-9999**.";
+                if (lower.includes('obrigado') || lower.includes('valeu')) return "Imagina! Eu que agradeço. Qualquer outra dúvida, estou por aqui. 😊";
+                return "Desculpe, ainda estou aprendendo sobre presentes! 😅 Tente perguntar 'como funciona' ou sobre o 'PIX'.";
+            }
+
+            if (chatbotButton) chatbotButton.addEventListener('click', toggleChat);
+            if (chatbotClose) chatbotClose.addEventListener('click', toggleChat);
+            if (previewClose) previewClose.addEventListener('click', (e) => { e.stopPropagation(); minimizePreview(); });
+            if (minimizedIcon) minimizedIcon.addEventListener('click', maximizePreview);
+            if (chatbotSend) chatbotSend.addEventListener('click', handleSendMessage);
+            if (chatbotInput) chatbotInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); handleSendMessage(); } });
+            startPreviewAnimation();
+        });
+    </script>
+</body>
+</html>

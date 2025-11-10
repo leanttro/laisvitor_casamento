@@ -445,7 +445,7 @@
             font-size: 0.9rem;
         }
         .preview-info strong span {
-            color: var(--accent-rosa); /* Vinho */
+            color: var(--chat-accent); /* Vinho */
             text-transform: lowercase;
         }
         .preview-info span {
@@ -1130,7 +1130,6 @@
             color: var(--accent-rosa);
         }
 
-        /* Botões do Carrossel: Padrão Desktop */
         .carousel-btn {
             background-color: var(--surface);
             border: 1px solid var(--border);
@@ -1142,7 +1141,6 @@
             cursor: pointer;
             z-index: 10;
             transition: all 0.3s ease;
-            flex-shrink: 0; /* Impede que encolha */
         }
         .carousel-btn:hover {
             background-color: var(--accent-vinho);
@@ -1156,34 +1154,18 @@
             margin-left: 1rem;
         }
 
-        /* --- CORREÇÃO MOBILE: MUDANÇA AQUI --- */
+        /* Esconde botões em telas mobile (usuário vai usar o swipe) */
         @media (max-width: 768px) {
-            /* Remove o padding negativo do carousel-wrapper para que ele não se estenda */
-            .carousel-wrapper {
-                 margin: 0; 
+            .carousel-btn {
+                display: none;
             }
-             /* Garante que o carrossel tenha padding nas laterais */
+            .carousel-wrapper {
+                 margin: 0 -2rem; /* Faz o carrossel ir de ponta a ponta */
+            }
              .carousel-container {
-                 padding: 1rem 2rem; 
-             }
-             
-             /* Torna os botões absolutos para sobrepor o carrossel */
-             .carousel-btn {
-                 display: block; /* Garante que estejam visíveis no mobile */
-                 position: absolute;
-                 top: 50%;
-                 transform: translateY(-50%);
-                 margin: 0;
-                 box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-             }
-             .carousel-btn.prev {
-                 left: 0; /* Coloca o botão esquerdo na borda da tela */
-             }
-             .carousel-btn.next {
-                 right: 0; /* Coloca o botão direito na borda da tela */
+                 padding: 1rem 2rem; /* Adiciona padding de volta */
              }
         }
-        /* --- FIM DA CORREÇÃO MOBILE --- */
 
         /* --- Estilos do Modal --- */
         .modal-overlay {
@@ -1399,10 +1381,6 @@
                     <li><a href="#historia">Nossa História</a></li>
                     <li><a href="#depoimentos">Recados</a></li>
                     <li><a href="#detalhes">Detalhes</a></li>
-                    <!-- LINKS ADICIONADOS -->
-                    <li><a href="presentes.html">Lista de Presentes</a></li>
-                    <li><a href="laisvitor_admin.html">Noivos (Admin)</a></li>
-                    <!-- FIM LINKS ADICIONADOS -->
                 </ul >
             </nav>
             <button class="menu-toggle" id="menu-toggle" aria-label="Abrir menu">
@@ -1454,8 +1432,7 @@
                         <h3>Lista de Presentes</h3>
                         <p>Sua presença é o nosso maior presente. Se desejar nos mimar, veja nossa lista de presentes virtual.</p>
                         <div class="direction-card-buttons">
-                            <!-- LINK CORRIGIDO: Agora leva para a página presentes.html -->
-                            <a href="presentes.html" class="btn btn-outline" style="text-decoration: none;">Acessar Lista de Presentes</a>
+                            <button class="btn btn-outline" onclick="document.getElementById('chatbotButton').click()">Acessar Lista de Presentes</button>
                         </div>
                     </div>
                 </div>
@@ -1530,7 +1507,6 @@
                     </button>
                     
                     <div class="carousel-container" id="carousel-container">
-                        <p style="text-align: center; width: 100%; color: var(--accent-vinho);">Carregando recados aprovados...</p>
                         </div>
                     
                     <button class="carousel-btn next" id="carousel-next" aria-label="Próximo recado">
@@ -1706,9 +1682,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Configuração da API (Ajuste se seu backend estiver em outro lugar)
-            const API_BASE_URL = 'http://127.0.0.1:5000'; // URL padrão do Flask local
-
             // Lógica do Header e Menu Mobile (MANTIDA)
             const header = document.querySelector('header');
             window.addEventListener('scroll', () => { header.classList.toggle('scrolled', window.scrollY > 50); });
@@ -1866,7 +1839,6 @@
                 messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
                 let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
                 formattedText = formattedText.replace(/\n/g, '<br>');
-                // CORREÇÃO: Adiciona target="_blank" para links abrirem em nova aba
                 formattedText = formattedText.replace(/<a href/g, '<a style="color: var(--accent-vinho); text-decoration: underline;" target="_blank" href');
 
                 conversationHistory.push({ 
@@ -1932,7 +1904,7 @@
                 }, 1500);
             }
             
-            // --- Cérebro do Bot (FINAL COM LINKS CORRIGIDOS) ---
+            // --- 6. Cérebro do Bot (FINAL) ---
             function getBotResponse(userText) {
                 const lowerText = userText.toLowerCase();
 
@@ -1941,33 +1913,27 @@
                 }
 
                 if (lowerText.includes('rsvp') || lowerText.includes('confirmar') || lowerText.includes('presença')) {
-                    return "Que ótimo que você veio confirmar! Para iniciar o RSVP, por favor, me diga o **código do seu convite** para eu verificar no sistema.";
+                    // No futuro, isso iniciaria um fluxo de coleta de dados.
+                    return "Que ótimo que você veio confirmar! Para iniciar o RSVP, por favor, me diga o nome completo que estava no convite.";
                 }
 
                 if (lowerText.includes('presente') || lowerText.includes('lista')) {
-                    // LINK CORRIGIDO
-                    return "A Laís e o Vitor têm uma lista de presentes virtual! Você pode acessar clicando aqui: <a href='presentes.html'>**[Lista de Presentes]**</a>. A lista é convertida em PIX para os noivos.";
+                    return "A Laís e o Vitor têm uma lista de presentes virtual! Você pode acessar clicando aqui: <a href='#'>[Link da Lista de Presentes]</a>. A lista é convertida em PIX para os noivos.";
                 }
 
                 if (lowerText.includes('local') || lowerText.includes('endereço') || lowerText.includes('onde')) {
-                    // LINK CORRIGIDO
-                    return "A cerimônia e a festa serão no mesmo local:<br><strong>Buffet VillaLobos</strong><br>Av. Sete de Setembro, 1234 - São Paulo/SP.<br><br>Você pode ver o mapa aqui: <a href='https://google.com/maps/dir/?api=1&destination=BUFFET+VILLA+LOBOS+SAO+PAULO'>**[Google Maps]**</a>";
+                    return "A cerimônia e a festa serão no mesmo local:<br><strong>Buffet VillaLobos</strong><br>Av. Sete de Setembro, 1234 - São Paulo/SP.<br><br>Você pode ver o mapa aqui: <a href='#'>[Link do Google Maps]</a>";
                 }
 
                 if (lowerText.includes('traje') || lowerText.includes('roupa') || lowerText.includes('vestir')) {
-                    return "O traje recomendado é **Esporte Fino**. Queremos que todos estejam elegantes e confortáveis para celebrar conosco!";
+                    return "O traje recomendado é <strong>Esporte Fino</strong>. Queremos que todos estejam elegantes e confortáveis para celebrar conosco!";
                 }
 
                 if (lowerText.includes('obrigado') || lowerText.includes('obrigada')) {
                     return "Eu que agradeço! Se precisar de mais alguma coisa, é só perguntar. 😊";
                 }
 
-                if (lowerText.includes('admin') || lowerText.includes('noivos')) {
-                    // LINK CORRIGIDO
-                    return "Você quer acessar o Painel de Controle? Por favor, use este link: <a href='laisvitor_admin.html'>**[Painel dos Noivos]**</a>. Lembre-se que é necessário login e senha.";
-                }
-
-                return "Desculpe, não entendi essa pergunta. Tente perguntar sobre **RSVP**, **Local**, **Traje** ou **Lista de Presentes**.";
+                return "Desculpe, não entendi essa pergunta. Tente perguntar sobre RSVP, Local, Traje ou Lista de Presentes.";
             }
             
             if (chatbotSend) chatbotSend.addEventListener('click', handleSendMessage);
@@ -2007,15 +1973,7 @@
                 copyButton.addEventListener('click', () => {
                     const address = addressText.innerText;
                     
-                    // Usa document.execCommand('copy') como fallback para garantir compatibilidade em iframes
-                    try {
-                        const tempInput = document.createElement('textarea');
-                        tempInput.value = address;
-                        document.body.appendChild(tempInput);
-                        tempInput.select();
-                        document.execCommand('copy');
-                        document.body.removeChild(tempInput);
-
+                    navigator.clipboard.writeText(address).then(() => {
                         // Sucesso
                         const originalText = copyButton.innerText;
                         copyButton.innerText = "Copiado! 👍";
@@ -2026,19 +1984,46 @@
                             copyButton.disabled = false;
                         }, 2000);
 
-                    } catch (err) {
+                    }).catch(err => {
+                        // Erro (raro, mas bom ter)
                         console.error('Falha ao copiar endereço: ', err);
+                        // Usando console.log em vez de alert()
                         console.log("Não foi possível copiar o endereço. Tente manualmente.");
-                    }
+                    });
                 });
             }
             // --- FIM: Lógica do Botão "Copiar Endereço" ---
             
             // =============================================================
-            // --- INÍCIO: Lógica do Carrossel e Modal de Depoimentos (Integrado com API) ---
+            // --- INÍCIO: Lógica do Carrossel e Modal de Depoimentos ---
             // =============================================================
             
-            // --- 1. Seletores do DOM ---
+            // --- 1. DUMMY DATA (Simulando o fetch de 'laisvitor_depoimentos') ---
+            // No futuro, você vai substituir isso por: const dummyData = await fetch(...).then(res => res.json());
+            const dummyData = [
+                {
+                    nome: "Ana Beatriz (Madrinha)",
+                    data: "10/10/2025",
+                    texto: "Meus queridos, que alegria imensa fazer parte deste momento! Acompanho essa história desde o começo, do primeiro café (que eu sei que foi hilário) até agora. Vocês são a prova de que o amor verdadeiro é construído com paciência, risadas e muito companheirismo. A Lais é a irmã que eu escolhi e o Vitor é o cara incrível que a faz mais feliz do que nunca. Amo vocês!"
+                },
+                {
+                    nome: "Carlos (Pai do Noivo)",
+                    data: "08/10/2025",
+                    texto: "Filho, você sempre foi nosso orgulho. E Lais, querida, você trouxe uma luz nova para nossa família. Vê-los construir um lar, uma vida, com tanto respeito um pelo outro, enche meu coração de felicidade. Que este 'sim' seja a continuação de uma vida inteira de bênçãos. Estamos ansiosos pelo grande dia!"
+                },
+                {
+                    nome: "Juliana e Marcos",
+                    data: "05/10/2025",
+                    texto: "Lá e Vitão! Finalmente! Casal, vocês são pura inspiração. Mal podemos esperar para celebrar com vocês, dançar até o chão e comemorar essa união que já era certa desde o dia que apresentamos o Paçoca pra vocês kkkk. Preparem-se porque vamos festejar muito! Felicidades mil!"
+                },
+                {
+                    nome: "Dona Maria (Avó da Noiva)",
+                    data: "02/10/2025",
+                    texto: "Minha neta querida, parece que foi ontem que você era uma menina correndo pelo jardim. Hoje é uma mulher linda, prestes a se casar com um homem bom. Vitor, cuide bem da minha menina. Que Deus abençoe essa união com muita sabedoria e netinhos (kkk). Com amor, Vovó."
+                }
+            ];
+
+            // --- 2. Seletores do DOM ---
             const carouselContainer = document.getElementById('carousel-container');
             const btnPrev = document.getElementById('carousel-prev');
             const btnNext = document.getElementById('carousel-next');
@@ -2049,35 +2034,11 @@
             const modalNome = document.getElementById('modal-nome');
             const modalData = document.getElementById('modal-data');
 
-
-            // --- 2. Função para buscar depoimentos do backend ---
-            async function fetchTestimonials() {
-                if (!carouselContainer) return;
-                carouselContainer.innerHTML = '<p style="text-align: center; width: 100%; color: var(--accent-vinho);">Carregando recados aprovados...</p>';
-
-                try {
-                    const response = await fetch(`${API_BASE_URL}/api/depoimentos`);
-                    if (!response.ok) throw new Error('Erro ao buscar depoimentos.');
-                    
-                    const depoimentos = await response.json();
-                    
-                    if (depoimentos.length === 0) {
-                        carouselContainer.innerHTML = '<p style="text-align: center; width: 100%; color: var(--text-secondary);">Nenhum recado aprovado no momento.</p>';
-                    } else {
-                        populateCarousel(depoimentos);
-                    }
-                } catch (error) {
-                    console.error('Erro ao buscar depoimentos:', error);
-                    carouselContainer.innerHTML = '<p style="text-align: center; width: 100%; color: var(--status-rejected);">Erro ao carregar recados.</p>';
-                }
-            }
-
-
             // --- 3. Função para Popular o Carrossel ---
             function populateCarousel(data) {
                 if (!carouselContainer) return;
                 
-                carouselContainer.innerHTML = ''; // Limpa o loading
+                carouselContainer.innerHTML = ''; // Limpa o container
                 
                 data.forEach(depoimento => {
                     const card = document.createElement('div');
@@ -2086,7 +2047,7 @@
                     // Armazena os dados completos no elemento (melhor prática)
                     card.dataset.fullText = depoimento.texto;
                     card.dataset.nome = depoimento.nome;
-                    card.dataset.data = depoimento.data; // Já vem formatado do Python
+                    card.dataset.data = depoimento.data;
 
                     card.innerHTML = `
                         <p class="preview-text">${depoimento.texto}</p>
@@ -2127,7 +2088,9 @@
             }
 
             // --- 6. Inicialização e Event Listeners ---
-            fetchTestimonials(); // Chama a função para buscar os depoimentos
+            if (carouselContainer) {
+                 populateCarousel(dummyData); // Popula o carrossel ao carregar
+            }
            
             if (btnPrev) btnPrev.addEventListener('click', () => scrollCarousel('prev'));
             if (btnNext) btnNext.addEventListener('click', () => scrollCarousel('next'));

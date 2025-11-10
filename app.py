@@ -11,7 +11,7 @@ import psycopg2.extras
 
 # ======================================================================
 # API BACKEND - CASAMENTO LAÍS & VITOR
-# Versão: 1.0 (MVP)
+# Versão: 1.1 (MVP com CRUD Admin)
 # ======================================================================
 
 load_dotenv()
@@ -98,7 +98,15 @@ def setup_database():
         if cur.fetchone()[0] == 0:
              hash_padrao = hashlib.sha256("123".encode()).hexdigest()
              cur.execute("INSERT INTO laisvitor_admin (username, chave_admin_hash) VALUES (%s, %s)", ('admin', hash_padrao))
-             print("✅ [DB] Admin padrão criado (User: admin / Pass: 123)")
+             
+             # --- SEED DE PRESENTE (Para que a página presentes.html não venha vazia) ---
+             cur.execute("SELECT id FROM laisvitor_admin LIMIT 1")
+             admin_id = cur.fetchone()[0]
+             cur.execute("INSERT INTO laisvitor_presentes (admin_id, nome_presente, descricao, imagem_url, valor_cota) VALUES (%s, %s, %s, %s, %s)", 
+                         (admin_id, 'Cota Lua de Mel - Noite Extra', 'Ajude-nos a esticar a viagem dos sonhos! Todo valor é bem-vindo.', 'plane.png', 500.00))
+             cur.execute("INSERT INTO laisvitor_presentes (admin_id, nome_presente, descricao, imagem_url, valor_cota) VALUES (%s, %s, %s, %s, %s)", 
+                         (admin_id, 'Jantar Romântico em Veneza', 'Uma experiência gastronômica inesquecível para os recém-casados.', 'utensils.png', 350.00))
+             print("✅ [DB] Admin padrão (admin/123) e 2 presentes de teste criados.")
 
         conn.commit()
         print("✅ [DB] Tabelas verificadas/criadas com sucesso.")
@@ -294,7 +302,7 @@ def admin_stats():
     finally:
         if conn: conn.close()
 
-# --- 7.2 Moderação de Depoimentos ---
+# --- 7.2 Moderação de Depoimentos (Endpoints já criados no MVP) ---
 @app.route('/api/admin/depoimentos/pendentes', methods=['GET'])
 def admin_get_depoimentos_pendentes():
     if not check_auth(request): return jsonify({"erro": "Não autorizado"}), 403
@@ -325,27 +333,96 @@ def admin_update_depoimento_status(id):
         return jsonify({"mensagem": f"Depoimento {id} atualizado para {novo_status}"})
     finally:
         if conn: conn.close()
+        
+# --- 7.3 CRUD de Presentes (NOVOS ENDPOINTS) ---
+@app.route('/api/admin/presentes', methods=['GET', 'POST'])
+def admin_gerenciar_presentes():
+    if not check_auth(request): return jsonify({"erro": "Não autorizado"}), 403
+    admin_id = ADMIN_SESSIONS.get(request.headers.get('Authorization', '').replace('Bearer ', '')) # Pega o ID do admin
+    
+    conn = get_db_connection()
+    try:
+        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        
+        # GET: Retorna todos os presentes (ativos e inativos) para a tabela admin
+        if request.method == 'GET':
+            cur.execute("SELECT * FROM laisvitor_presentes WHERE admin_id = %s ORDER BY id", (admin_id,))
+            presentes = cur.fetchall()
+            for p in presentes:
+                 p['valor_cota'] = float(p['valor_cota'])
+            return jsonify(presentes)
+            
+        # POST: Adiciona um novo presente (chamado pelo modal)
+        elif request.method == 'POST':
+            data = request.json or {}
+            nome = data.get('nome_presente')
+            valor = data.get('valor_cota')
+            url = data.get('imagem_url')
+            desc = data.get('descricao')
+            
+            if not nome or not valor:
+                return jsonify({"mensagem": "Nome e valor são obrigatórios."}), 400
 
-# --- 7.3 Gerenciamento de Convidados (Básico para começar) ---
-@app.route('/api/admin/convidados', methods=['POST'])
-def admin_add_convidado():
-    """Adiciona um novo convidado à lista (Gera o código)."""
+            cur.execute("""
+                INSERT INTO laisvitor_presentes (admin_id, nome_presente, valor_cota, imagem_url, descricao)
+                VALUES (%s, %s, %s, %s, %s) RETURNING id
+            """, (admin_id, nome, valor, url, desc))
+            conn.commit()
+            return jsonify({"mensagem": "Presente adicionado com sucesso!", "id": cur.fetchone()[0]})
+
+    finally:
+        if conn: conn.close()
+
+@app.route('/api/admin/presentes/<int:id>/status', methods=['PUT'])
+def admin_toggle_presente_status(id):
+    """Ativa/Desativa um presente."""
     if not check_auth(request): return jsonify({"erro": "Não autorizado"}), 403
     data = request.json or {}
-    nome = data.get('nome_convidado')
-    # Gera um código aleatório de 6 dígitos (ex: A7B9K2)
-    codigo = str(uuid.uuid4())[:6].upper()
+    new_status = data.get('status') # true/false
 
     conn = get_db_connection()
     try:
         cur = conn.cursor()
-        # Assume admin_id=1 para MVP, ou pega da sessão se tiver múltiplos
-        cur.execute("INSERT INTO laisvitor_convidados (admin_id, nome_convidado, codigo_convite) VALUES (1, %s, %s) RETURNING id, codigo_convite", (nome, codigo))
-        res = cur.fetchone()
+        cur.execute("UPDATE laisvitor_presentes SET esta_ativo = %s WHERE id = %s", (new_status, id))
         conn.commit()
-        return jsonify({"mensagem": "Convidado criado", "id": res[0], "codigo": res[1]})
+        return jsonify({"mensagem": "Status do presente alterado."})
     finally:
         if conn: conn.close()
+
+# --- 7.4 Gerenciamento de Convidados (Para o painel) ---
+@app.route('/api/admin/convidados', methods=['GET', 'POST'])
+def admin_gerenciar_convidados():
+    if not check_auth(request): return jsonify({"erro": "Não autorizado"}), 403
+    admin_id = ADMIN_SESSIONS.get(request.headers.get('Authorization', '').replace('Bearer ', ''))
+    
+    conn = get_db_connection()
+    try:
+        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        
+        # GET: Retorna todos os convidados para a tabela admin
+        if request.method == 'GET':
+            cur.execute("SELECT id, codigo_convite, nome_convidado, status_rsvp, qtd_adultos, restricoes_alimentares FROM laisvitor_convidados WHERE admin_id = %s ORDER BY nome_convidado", (admin_id,))
+            return jsonify(cur.fetchall())
+            
+        # POST: Adiciona um novo convidado
+        elif request.method == 'POST':
+            data = request.json or {}
+            nome = data.get('nome_convidado')
+            # Gera um código aleatório de 6 dígitos
+            codigo = str(uuid.uuid4())[:6].upper()
+            
+            if not nome:
+                return jsonify({"mensagem": "Nome é obrigatório."}), 400
+
+            cur.execute("""
+                INSERT INTO laisvitor_convidados (admin_id, nome_convidado, codigo_convite) 
+                VALUES (%s, %s, %s) RETURNING id, codigo_convite
+            """, (admin_id, nome, codigo))
+            conn.commit()
+            return jsonify({"mensagem": "Convidado criado", "id": cur.fetchone()[0], "codigo": codigo})
+    finally:
+        if conn: conn.close()
+
 
 # ======================================================================
 # INICIALIZAÇÃO
