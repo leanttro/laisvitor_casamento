@@ -309,7 +309,8 @@
                     <input type="text" id="convidado-name" required>
                 </div>
                 <p class="error-msg" id="convidado-error-msg">Erro ao salvar.</p>
-                <p class="success-msg" id="convidado-success-msg">Convidado adicionado! Código gerado: <strong id="new-codigo"></strong></p>
+                <p class="success-msg" id="convidado-success-msg">ADICIONADO! Reinicie a página por favor! Código: <strong id="new-codigo"></strong></p>
+                
                 <div class="modal-buttons">
                     <button type="button" class="btn btn-danger" id="cancel-add-convidado">Cancelar</button>
                     <button type="submit" class="btn btn-success" id="save-convidado-btn">Gerar Código & Salvar</button>
@@ -357,18 +358,6 @@
                     <button type="submit" class="btn btn-success" id="save-update-convidado-btn">Atualizar Dados</button>
                 </div>
             </form>
-        </div>
-    </div>
-
-    <script>
-        function doNothing() {
-            // Função para silenciar o clique no ícone da LIA e evitar logs de console.
-            // A LIA está desativada na versão atual do painel.
-        }
-    </script>
-    <div style="position: fixed; bottom: 15px; right: 15px; cursor: pointer;" onclick="doNothing()">
-        <div style="width: 60px; height: 60px; background: var(--accent-vinho); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
-             <img src="casal.png" alt="LIA Admin" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; opacity: 0.9;">
         </div>
     </div>
 
@@ -638,40 +627,40 @@
                     body: JSON.stringify({ nome_convidado: convidadoName })
                 });
                 
-                // CORREÇÃO 1: Tratar a resposta da API de forma mais segura
+                // CORREÇÃO: TRATAR A RESPOSTA PARA FORÇAR MENSAGEM DE SUCESSO SE O POST FOR OK
                 if (response.ok) {
                     const contentType = response.headers.get("content-type");
+                    let data = {};
+                    
                     if (contentType && contentType.includes("application/json")) {
-                        const data = await response.json();
-                        newCodigoEl.textContent = data.codigo; // Exibe o código gerado
-                        convidadoSuccessMsgEl.style.display = 'block';
-                        
-                        // Recarrega as tabelas e stats *após* exibir a mensagem de sucesso
-                        loadConvidadosTable();
-                        loadDashboardStats(); 
-
-                        setTimeout(() => addConvidadoModal.style.display = 'none', 3000);
+                        data = await response.json();
                     } else {
-                        // Se a resposta foi OK, mas não é JSON (o que pode acontecer em alguns serviços de hosting)
+                        // Se for status 200/201 mas sem JSON (erro de proxy/deployment)
                         console.error('API retornou status OK, mas o conteúdo não é JSON.');
-                        convidadoSuccessMsgEl.textContent = 'Convidado adicionado. Recarregue a página para ver o código.';
-                        convidadoSuccessMsgEl.style.display = 'block';
-                        setTimeout(() => addConvidadoModal.style.display = 'none', 3000);
                     }
+
+                    // A exibição da mensagem de sucesso é a prioridade aqui
+                    newCodigoEl.textContent = data.codigo || 'Código gerado. Reinicie a página.'; 
+                    convidadoSuccessMsgEl.style.display = 'block';
+                    
+                    // Tenta recarregar a tabela e estatísticas (agora fora do try/catch para evitar o erro 500/JSON)
+                    loadConvidadosTable();
+                    loadDashboardStats(); 
+
+                    setTimeout(() => addConvidadoModal.style.display = 'none', 3000);
+                    
                 } else if (response.status === 403) {
                     convidadoErrorMsgEl.textContent = 'Falha de Autorização (403). Relogue.';
                     convidadoErrorMsgEl.style.display = 'block';
                     showLogin();
                 } else {
-                    // Tratar outros erros (como 400 ou 500)
-                    const errorText = await response.text();
-                    try {
-                        const error = JSON.parse(errorText);
-                        convidadoErrorMsgEl.textContent = error.mensagem || 'Falha ao adicionar convidado.';
-                    } catch {
-                         convidadoErrorMsgEl.textContent = `Erro do Servidor (${response.status}).`;
-                    }
+                    // Tratar outros erros (400 ou 500 - Erro do Servidor)
+                    convidadoErrorMsgEl.textContent = `Erro do Servidor (${response.status}).`;
                     convidadoErrorMsgEl.style.display = 'block';
+                    
+                    // Se a operação foi *quase* bem-sucedida (código no servidor gerado), mas falhou na resposta:
+                    // Deixe a mensagem de erro mas garanta que o modal feche.
+                    setTimeout(() => addConvidadoModal.style.display = 'none', 3000);
                 }
             } catch (error) {
                 // Erro de rede ou erro na função fetch
