@@ -11,7 +11,7 @@ import psycopg2.extras
 
 # ======================================================================
 # API BACKEND - CASAMENTO LAÍS & VITOR
-# Versão: 1.5 (CORREÇÃO DE BUG: Edição de Presentes - Botão Editar)
+# Versão: 1.6 (CORREÇÃO DE BUG: Edição de Convidados - Botão Editar)
 # ======================================================================
 
 load_dotenv()
@@ -337,11 +337,9 @@ def admin_update_depoimento_status(id):
         if conn: conn.close()
         
 # --- 7.3 CRUD de Presentes ---
-# ENDPOINT CORRIGIDO: O front-end usa esta rota para carregar os dados no modal de edição.
 @app.route('/api/presentes/<int:id>', methods=['GET'])
 def get_presente_by_id(id):
-    """Busca um único presente pelo ID para o formulário de edição."""
-    # O frontend envia a autenticação para esta rota.
+    """Busca um único presente pelo ID para o formulário de edição (já corrigido)."""
     if not check_auth(request): return jsonify({"erro": "Não autorizado"}), 403
     conn = get_db_connection()
     try:
@@ -437,7 +435,55 @@ def admin_toggle_presente_status(id):
     finally:
         if conn: conn.close()
 
-# --- 7.4 Gerenciamento de Convidados ---
+# --- 7.4 Gerenciamento de Convidados (CORREÇÕES AQUI) ---
+
+# NOVO ENDPOINT: Para o botão Editar carregar os dados do convidado.
+@app.route('/api/convidados/<int:id>', methods=['GET'])
+def get_convidado_by_id(id):
+    """Busca um único convidado pelo ID para o formulário de edição."""
+    if not check_auth(request): return jsonify({"erro": "Não autorizado"}), 403
+    conn = get_db_connection()
+    try:
+        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        # Seleciona todos os campos importantes para edição
+        cur.execute("SELECT id, nome_convidado, codigo_convite, status_rsvp, qtd_adultos, restricoes_alimentares FROM laisvitor_convidados WHERE id = %s", (id,))
+        convidado = cur.fetchone()
+        
+        if not convidado:
+            return jsonify({"erro": "Convidado não encontrado"}), 404
+        
+        return jsonify(convidado)
+    finally:
+        if conn: conn.close()
+
+# NOVO ENDPOINT: Para salvar as alterações do convidado.
+@app.route('/api/admin/convidados/<int:id>', methods=['PUT'])
+def admin_update_convidado(id):
+    """Atualiza um convidado existente."""
+    if not check_auth(request): return jsonify({"erro": "Não autorizado"}), 403
+    data = request.json or {}
+    nome = data.get('nome_convidado')
+    status = data.get('status_rsvp')
+    qtd_adultos = data.get('qtd_adultos')
+    restricoes = data.get('restricoes_alimentares', '')
+    
+    if not nome or not status:
+        return jsonify({"mensagem": "Nome e Status são obrigatórios."}), 400
+
+    conn = get_db_connection()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            UPDATE laisvitor_convidados 
+            SET nome_convidado = %s, status_rsvp = %s, qtd_adultos = %s, restricoes_alimentares = %s
+            WHERE id = %s
+        """, (nome, status, qtd_adultos, restricoes, id))
+        conn.commit()
+        return jsonify({"mensagem": "Convidado atualizado com sucesso!"})
+    finally:
+        if conn: conn.close()
+        
+# ENDPOINT EXISTENTE: Para listar e adicionar convidados
 @app.route('/api/admin/convidados', methods=['GET', 'POST'])
 def admin_gerenciar_convidados():
     if not check_auth(request): return jsonify({"erro": "Não autorizado"}), 403
@@ -452,7 +498,7 @@ def admin_gerenciar_convidados():
             cur.execute("SELECT id, codigo_convite, nome_convidado, status_rsvp, qtd_adultos, restricoes_alimentares FROM laisvitor_convidados WHERE admin_id = %s ORDER BY nome_convidado", (admin_id,))
             return jsonify(cur.fetchall())
             
-        # POST: Adiciona um novo convidado (CORREÇÃO DE BUG: KeyError: 0)
+        # POST: Adiciona um novo convidado
         elif request.method == 'POST':
             data = request.json or {}
             nome = data.get('nome_convidado')
