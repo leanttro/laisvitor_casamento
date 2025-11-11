@@ -60,11 +60,11 @@
         .login-box h2 { font-size: 2rem; margin-bottom: 2rem; color: var(--accent-rosa); }
         .input-group { margin-bottom: 1.5rem; text-align: left; }
         .input-group label { display: block; margin-bottom: 0.5rem; color: var(--text-primary); }
-        .input-group input, .input-group textarea {
+        .input-group input, .input-group textarea, .input-group select { /* Adicionado select */
             width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--border);
             background-color: var(--background); color: var(--text-primary); font-family: var(--font-body);
         }
-        .input-group input:focus, .input-group textarea:focus { border-color: var(--accent-vinho); outline: none; }
+        .input-group input:focus, .input-group textarea:focus, .input-group select:focus { border-color: var(--accent-vinho); outline: none; }
 
         /* --- HEADER SIMPLIFICADO --- */
         header {
@@ -103,7 +103,7 @@
         }
         .stat-number {
             font-family: var(--font-heading); font-size: 3rem; font-weight: 700;
-            color: var(--text-primary); /* CORREÇÃO APLICADA: Cor Branca para Legibilidade */
+            color: var(--text-primary);
             line-height: 1; margin-bottom: 0.5rem;
         }
         .stat-label { font-size: 1rem; color: var(--text-primary); font-weight: 500; }
@@ -318,8 +318,50 @@
         </div>
     </div>
 
+    <div id="edit-convidado-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close" id="close-edit-convidado-modal">&times;</button>
+            <h3>Editar Convidado</h3>
+            <form id="update-convidado-form">
+                <input type="hidden" id="update-convidado-id"> 
+                <div class="input-group">
+                    <label for="update-convidado-name">Nome Completo/Família</label>
+                    <input type="text" id="update-convidado-name" required>
+                </div>
+                <div class="input-group">
+                    <label for="update-convidado-codigo">Código de Convite</label>
+                    <input type="text" id="update-convidado-codigo" readonly>
+                </div>
+                <div class="input-group">
+                    <label for="update-convidado-status">Status RSVP</label>
+                    <select id="update-convidado-status" required>
+                        <option value="Pendente">Pendente</option>
+                        <option value="Confirmado">Confirmado</option>
+                        <option value="Recusado">Recusado</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="update-convidado-adultos">Qtd. Adultos</label>
+                    <input type="number" id="update-convidado-adultos" min="0">
+                </div>
+                <div class="input-group">
+                    <label for="update-convidado-restricoes">Restrições Alimentares</label>
+                    <textarea id="update-convidado-restricoes" rows="2"></textarea>
+                </div>
 
-    <div style="position: fixed; bottom: 15px; right: 15px; cursor: pointer;" onclick="alert('LIA: Olá! Em breve, eu vou te ajudar a gerar relatórios e enviar lembretes por aqui!')">
+                <p class="error-msg" id="update-convidado-error-msg">Erro ao atualizar.</p>
+                <p class="success-msg" id="update-convidado-success-msg">Convidado atualizado com sucesso!</p>
+                
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-danger" id="cancel-update-convidado">Cancelar</button>
+                    <button type="submit" class="btn btn-success" id="save-update-convidado-btn">Atualizar Dados</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <div style="position: fixed; bottom: 15px; right: 15px; cursor: pointer;" onclick="console.log('LIA: Funcionalidades futuras como relatórios e lembretes serão adicionadas aqui!')">
         <div style="width: 60px; height: 60px; background: var(--accent-vinho); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
              <img src="casal.png" alt="LIA Admin" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; opacity: 0.9;">
         </div>
@@ -372,7 +414,7 @@
             localStorage.removeItem('admin_token');
         }
 
-        // --- Lógica de Login (Corrigida para usar o ID do botão) ---
+        // --- Lógica de Login ---
         async function handleLogin() {
             const user = document.getElementById('username').value;
             const pass = document.getElementById('password').value;
@@ -401,10 +443,8 @@
             }
         }
         
-        // CORREÇÃO: Vincula o clique do botão (type="button") diretamente à função
         document.getElementById('login-button').addEventListener('click', handleLogin); 
         
-        // Também permite o ENTER no formulário
         document.getElementById('login-form').addEventListener('submit', (e) => {
             e.preventDefault();
             handleLogin();
@@ -421,7 +461,7 @@
             loadDashboardStats();
             loadGiftsTable();
             loadConvidadosTable(); 
-            loadModerationList(); // <-- AGORA CHAMADO CORRETAMENTE
+            loadModerationList();
         }
         
         async function loadDashboardStats() {
@@ -459,7 +499,7 @@
         }
         
         // =============================================================
-        // --- FUNÇÕES DE MODERAÇÃO DE RECADOS (CORREÇÃO DO 403) ---
+        // --- FUNÇÕES DE MODERAÇÃO DE RECADOS ---
         // =============================================================
         const moderationListEl = document.getElementById('moderation-list');
 
@@ -523,7 +563,6 @@
                     // Atualiza ambas as listas e o contador
                     loadModerationList(); 
                     loadDashboardStats();
-                    // Não precisa atualizar o carrossel público, pois ele é carregado no index
                 } else if (response.status === 403) {
                      alert('Falha de Autorização (403). Redirecionando para login.');
                      showLogin();
@@ -542,24 +581,43 @@
         // =============================================================
         const convidadosTableBody = document.querySelector('#convidados-table tbody');
         const addConvidadoModal = document.getElementById('add-convidado-modal');
+        const editConvidadoModal = document.getElementById('edit-convidado-modal'); // Novo Modal
         const openConvidadoModalBtn = document.getElementById('open-add-convidado-modal');
         const closeConvidadoModalBtn = document.getElementById('close-add-convidado-modal');
+        const closeEditConvidadoModalBtn = document.getElementById('close-edit-convidado-modal'); // Botão Fechar Edição
         const addConvidadoForm = document.getElementById('add-convidado-form');
+        const updateConvidadoForm = document.getElementById('update-convidado-form'); // Novo Form
         const convidadoErrorMsgEl = document.getElementById('convidado-error-msg');
         const convidadoSuccessMsgEl = document.getElementById('convidado-success-msg');
         const newCodigoEl = document.getElementById('new-codigo');
         
-        // ABRIR MODAL
+        // VARIÁVEIS DO MODAL DE EDIÇÃO
+        const updateConvidadoIdInput = document.getElementById('update-convidado-id');
+        const updateConvidadoNameInput = document.getElementById('update-convidado-name');
+        const updateConvidadoCodigoInput = document.getElementById('update-convidado-codigo');
+        const updateConvidadoStatusSelect = document.getElementById('update-convidado-status');
+        const updateConvidadoAdultosInput = document.getElementById('update-convidado-adultos');
+        const updateConvidadoRestricoesTextarea = document.getElementById('update-convidado-restricoes');
+        const updateConvidadoErrorMsgEl = document.getElementById('update-convidado-error-msg');
+        const updateConvidadoSuccessMsgEl = document.getElementById('update-convidado-success-msg');
+
+
+        // ABRIR MODAL ADICIONAR
         openConvidadoModalBtn.addEventListener('click', () => {
             addConvidadoModal.style.display = 'flex';
             addConvidadoForm.reset();
             convidadoErrorMsgEl.style.display = 'none';
             convidadoSuccessMsgEl.style.display = 'none';
         });
-        // FECHAR MODAL
+        // FECHAR MODAL ADICIONAR
         closeConvidadoModalBtn.addEventListener('click', () => addConvidadoModal.style.display = 'none');
         document.getElementById('cancel-add-convidado').addEventListener('click', () => addConvidadoModal.style.display = 'none');
         
+        // FECHAR MODAL EDIÇÃO
+        closeEditConvidadoModalBtn.addEventListener('click', () => editConvidadoModal.style.display = 'none');
+        document.getElementById('cancel-update-convidado').addEventListener('click', () => editConvidadoModal.style.display = 'none');
+
+
         // SUBMISSÃO DO FORMULÁRIO (POST /api/admin/convidados)
         addConvidadoForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -579,8 +637,12 @@
                     const data = await response.json();
                     newCodigoEl.textContent = data.codigo; // Exibe o código gerado
                     convidadoSuccessMsgEl.style.display = 'block';
+                    
+                    // --- CORREÇÃO DO BUG: Tenta recarregar a tabela e estatísticas, mas garante que a mensagem de sucesso seja exibida antes ---
                     loadConvidadosTable(); // Recarrega a tabela
                     loadDashboardStats(); // Atualiza contagem de pendentes
+                    // ---------------------------------------------------------------------------------------------------------------------------------
+
                     setTimeout(() => addConvidadoModal.style.display = 'none', 3000);
                 } else if (response.status === 403) {
                     convidadoErrorMsgEl.textContent = 'Falha de Autorização (403). Relogue.';
@@ -592,12 +654,92 @@
                     convidadoErrorMsgEl.style.display = 'block';
                 }
             } catch (error) {
+                // ESTE CATCH É DISPARADO SE O loadConvidadosTable() FALHAR, MESMO COM SUCESSO DO POST.
+                // Mas a mensagem de sucesso já foi exibida acima. MANTEMOS A MENSAGEM GENÉRICA APENAS SE HOUVER ERRO REAL NO POST.
                 console.error('Erro ao adicionar convidado:', error);
-                convidadoErrorMsgEl.textContent = 'Erro de conexão com a API.';
-                convidadoErrorMsgEl.style.display = 'block';
+                if (convidadoSuccessMsgEl.style.display !== 'block') {
+                    convidadoErrorMsgEl.textContent = 'Erro de conexão com a API.';
+                    convidadoErrorMsgEl.style.display = 'block';
+                }
             }
         });
+
+        // SUBMISSÃO DO FORMULÁRIO (PUT /api/admin/convidados/<id>)
+        updateConvidadoForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            updateConvidadoErrorMsgEl.style.display = 'none';
+            updateConvidadoSuccessMsgEl.style.display = 'none';
+            
+            const convidadoId = updateConvidadoIdInput.value;
+
+            const convidadoData = {
+                nome_convidado: updateConvidadoNameInput.value,
+                status_rsvp: updateConvidadoStatusSelect.value,
+                qtd_adultos: parseInt(updateConvidadoAdultosInput.value) || 0,
+                restricoes_alimentares: updateConvidadoRestricoesTextarea.value,
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/admin/convidados/${convidadoId}`, {
+                    method: 'PUT',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(convidadoData)
+                });
+                
+                if (response.ok) {
+                    updateConvidadoSuccessMsgEl.textContent = 'Convidado atualizado com sucesso!';
+                    updateConvidadoSuccessMsgEl.style.display = 'block';
+                    loadConvidadosTable(); // Recarrega a tabela
+                    loadDashboardStats(); // Atualiza contagem
+                    setTimeout(() => editConvidadoModal.style.display = 'none', 1500);
+                } else if (response.status === 403) {
+                    updateConvidadoErrorMsgEl.textContent = 'Falha de Autorização (403). Relogue.';
+                    updateConvidadoErrorMsgEl.style.display = 'block';
+                    showLogin();
+                } else {
+                    const error = await response.json();
+                    updateConvidadoErrorMsgEl.textContent = error.mensagem || 'Falha ao atualizar convidado.';
+                    updateConvidadoErrorMsgEl.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Erro ao atualizar convidado:', error);
+                updateConvidadoErrorMsgEl.textContent = 'Erro de conexão com a API.';
+                updateConvidadoErrorMsgEl.style.display = 'block';
+            }
+        });
+
         
+        // FUNÇÃO PARA ABRIR O MODAL DE EDIÇÃO (GET /api/convidados/<id>)
+        window.editConvidado = async function(convidadoId) {
+            updateConvidadoErrorMsgEl.style.display = 'none';
+            updateConvidadoSuccessMsgEl.style.display = 'none';
+
+            try {
+                // 1. Buscando dados do convidado
+                const response = await fetch(`${API_BASE_URL}/api/convidados/${convidadoId}`, { headers: getAuthHeaders() });
+                if (response.status === 404) throw new Error("Convidado não encontrado.");
+                if (response.status === 403) { showLogin(); return; }
+                if (!response.ok) throw new Error("Erro ao carregar dados do convidado.");
+
+                const convidado = await response.json();
+                
+                // 2. Preencher o Modal
+                updateConvidadoIdInput.value = convidado.id; // ID oculto para o PUT
+                updateConvidadoNameInput.value = convidado.nome_convidado;
+                updateConvidadoCodigoInput.value = convidado.codigo_convite; // Apenas leitura
+                updateConvidadoStatusSelect.value = convidado.status_rsvp || 'Pendente';
+                updateConvidadoAdultosInput.value = convidado.qtd_adultos || 0;
+                updateConvidadoRestricoesTextarea.value = convidado.restricoes_alimentares || '';
+
+                // 3. Abrir o Modal
+                editConvidadoModal.style.display = 'flex';
+
+            } catch (error) {
+                console.error('Erro ao editar convidado:', error);
+                alert('Não foi possível carregar os dados para edição.');
+            }
+        }
+
         // CARREGAR A TABELA DE CONVIDADOS (GET /api/admin/convidados)
         async function loadConvidadosTable() {
             convidadosTableBody.innerHTML = '<tr id="convidados-loading"><td colspan="6" style="text-align: center;">Carregando lista de convidados...</td></tr>';
@@ -629,7 +771,7 @@
                         <td>${c.restricoes_alimentares || '-'}</td>
                         <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                         <td>
-                             <button class="btn-action" style="background:#555; color:white;">Editar</button>
+                             <button class="btn-action" style="background:#555; color:white;" onclick="editConvidado(${c.id})">Editar</button>
                         </td>
                     `;
                 });
@@ -641,7 +783,7 @@
         }
         
         // =============================================================
-        // --- FUNÇÕES DE GERENCIAMENTO DE PRESENTE (ATUALIZADAS) ---
+        // --- FUNÇÕES DE GERENCIAMENTO DE PRESENTE ---
         // =============================================================
         
         async function loadGiftsTable() {
@@ -689,7 +831,6 @@
         
         // Função para ativar/desativar um presente (Chamará o PUT /api/admin/presentes/<id>/status)
         window.toggleGiftStatus = async function(giftId, newStatus) {
-            // NOTE: Substituído por modal customizado se necessário, mas mantendo o alert simples
             if (!confirm(`Tem certeza que deseja ${newStatus ? 'ATIVAR' : 'DESATIVAR'} o presente ID ${giftId}?`)) return;
             try {
                 const response = await fetch(`${API_BASE_URL}/api/admin/presentes/${giftId}/status`, {
@@ -711,14 +852,15 @@
             }
         }
         
-        // --- FUNÇÃO PARA ABRIR MODAL EM MODO EDIÇÃO ---
+        // --- FUNÇÃO PARA ABRIR MODAL EM MODO EDIÇÃO (PRESENTE) ---
         window.editGift = async function(giftId) {
             isEditingGift = true;
             errorMsgEl.style.display = 'none';
             successMsgEl.style.display = 'none';
             
-            // 1. Buscando dados do presente (necessário para preencher o formulário)
+            // 1. Buscando dados do presente
             try {
+                // Endpoint /api/presentes/<id> é corrigido no app.py para ter autenticação
                 const response = await fetch(`${API_BASE_URL}/api/presentes/${giftId}`, { headers: getAuthHeaders() });
                 if (response.status === 404) throw new Error("Presente não encontrado.");
                 if (response.status === 403) { showLogin(); return; }
@@ -768,7 +910,7 @@
         closeModalBtn.addEventListener('click', () => addGiftModal.style.display = 'none');
         document.getElementById('cancel-add-gift').addEventListener('click', () => addGiftModal.style.display = 'none');
         
-        // Envio do formulário (Criação ou Edição)
+        // Envio do formulário (Criação ou Edição de Presente)
         addGiftForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             errorMsgEl.style.display = 'none';
