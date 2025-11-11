@@ -360,8 +360,13 @@
         </div>
     </div>
 
-
-    <div style="position: fixed; bottom: 15px; right: 15px; cursor: pointer;" onclick="console.log('LIA: Funcionalidades futuras como relatórios e lembretes serão adicionadas aqui!')">
+    <script>
+        function doNothing() {
+            // Função para silenciar o clique no ícone da LIA e evitar logs de console.
+            // A LIA está desativada na versão atual do painel.
+        }
+    </script>
+    <div style="position: fixed; bottom: 15px; right: 15px; cursor: pointer;" onclick="doNothing()">
         <div style="width: 60px; height: 60px; background: var(--accent-vinho); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
              <img src="casal.png" alt="LIA Admin" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; opacity: 0.9;">
         </div>
@@ -633,34 +638,46 @@
                     body: JSON.stringify({ nome_convidado: convidadoName })
                 });
                 
+                // CORREÇÃO 1: Tratar a resposta da API de forma mais segura
                 if (response.ok) {
-                    const data = await response.json();
-                    newCodigoEl.textContent = data.codigo; // Exibe o código gerado
-                    convidadoSuccessMsgEl.style.display = 'block';
-                    
-                    // --- CORREÇÃO DO BUG: Tenta recarregar a tabela e estatísticas, mas garante que a mensagem de sucesso seja exibida antes ---
-                    loadConvidadosTable(); // Recarrega a tabela
-                    loadDashboardStats(); // Atualiza contagem de pendentes
-                    // ---------------------------------------------------------------------------------------------------------------------------------
+                    const contentType = response.headers.get("content-type");
+                    if (contentType && contentType.includes("application/json")) {
+                        const data = await response.json();
+                        newCodigoEl.textContent = data.codigo; // Exibe o código gerado
+                        convidadoSuccessMsgEl.style.display = 'block';
+                        
+                        // Recarrega as tabelas e stats *após* exibir a mensagem de sucesso
+                        loadConvidadosTable();
+                        loadDashboardStats(); 
 
-                    setTimeout(() => addConvidadoModal.style.display = 'none', 3000);
+                        setTimeout(() => addConvidadoModal.style.display = 'none', 3000);
+                    } else {
+                        // Se a resposta foi OK, mas não é JSON (o que pode acontecer em alguns serviços de hosting)
+                        console.error('API retornou status OK, mas o conteúdo não é JSON.');
+                        convidadoSuccessMsgEl.textContent = 'Convidado adicionado. Recarregue a página para ver o código.';
+                        convidadoSuccessMsgEl.style.display = 'block';
+                        setTimeout(() => addConvidadoModal.style.display = 'none', 3000);
+                    }
                 } else if (response.status === 403) {
                     convidadoErrorMsgEl.textContent = 'Falha de Autorização (403). Relogue.';
                     convidadoErrorMsgEl.style.display = 'block';
                     showLogin();
                 } else {
-                    const error = await response.json();
-                    convidadoErrorMsgEl.textContent = error.mensagem || 'Falha ao adicionar convidado.';
+                    // Tratar outros erros (como 400 ou 500)
+                    const errorText = await response.text();
+                    try {
+                        const error = JSON.parse(errorText);
+                        convidadoErrorMsgEl.textContent = error.mensagem || 'Falha ao adicionar convidado.';
+                    } catch {
+                         convidadoErrorMsgEl.textContent = `Erro do Servidor (${response.status}).`;
+                    }
                     convidadoErrorMsgEl.style.display = 'block';
                 }
             } catch (error) {
-                // ESTE CATCH É DISPARADO SE O loadConvidadosTable() FALHAR, MESMO COM SUCESSO DO POST.
-                // Mas a mensagem de sucesso já foi exibida acima. MANTEMOS A MENSAGEM GENÉRICA APENAS SE HOUVER ERRO REAL NO POST.
-                console.error('Erro ao adicionar convidado:', error);
-                if (convidadoSuccessMsgEl.style.display !== 'block') {
-                    convidadoErrorMsgEl.textContent = 'Erro de conexão com a API.';
-                    convidadoErrorMsgEl.style.display = 'block';
-                }
+                // Erro de rede ou erro na função fetch
+                console.error('Erro fatal na operação de adicionar convidado:', error);
+                convidadoErrorMsgEl.textContent = 'Erro de conexão com a API.';
+                convidadoErrorMsgEl.style.display = 'block';
             }
         });
 
