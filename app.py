@@ -3,7 +3,7 @@ import json
 import datetime
 import hashlib
 import uuid
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 from dotenv import load_dotenv
 import psycopg2
@@ -11,18 +11,17 @@ import psycopg2.extras
 
 # ======================================================================
 # API BACKEND - CASAMENTO LAÍS & VITOR
-# Versão: 1.6 (CORREÇÃO DE BUG: Edição de Convidados - Botão Editar)
+# Versão: 1.7 (CORREÇÃO DE ROTA: Servindo Frontend + API)
 # ======================================================================
 
 load_dotenv()
 app = Flask(__name__)
-CORS(app) # Permite que seu index.html (frontend) converse com este backend
+CORS(app) # Permite que o navegador aceite requisições externas, se necessário
 
 # --- CONFIGURAÇÃO: BANCO DE DADOS ---
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
 # --- SIMULAÇÃO DE SESSÃO (Para MVP - Em produção, usar Redis ou JWT) ---
-# Armazena tokens de admin ativos: { "token_uuid": admin_id }
 ADMIN_SESSIONS = {}
 
 def get_db_connection():
@@ -92,7 +91,7 @@ def setup_database():
             );
         """)
 
-        # --- SEED INICIAL (Opcional: Cria um admin padrão se não existir) ---
+        # --- SEED INICIAL ---
         cur.execute("SELECT COUNT(*) FROM laisvitor_admin")
         if cur.fetchone()[0] == 0:
              # Usuário: admin | Senha: 123 (Hash SHA256 para '123')
@@ -128,9 +127,8 @@ def check_auth(request):
     """Verifica se o request tem um token de admin válido."""
     token = request.headers.get('Authorization')
     if not token: return None
-    # Remove 'Bearer ' se estiver presente
     token = token.replace('Bearer ', '')
-    return ADMIN_SESSIONS.get(token) # Retorna admin_id ou None
+    return ADMIN_SESSIONS.get(token)
 
 # ======================================================================
 # 3. ENDPOINTS - AUTENTICAÇÃO (ADMIN)
@@ -147,16 +145,12 @@ def login_admin():
     conn = get_db_connection()
     try:
         cur = conn.cursor()
-        
-        # --- LOGIN DE EMERGÊNCIA (Texto Puro) ---
         cur.execute("SELECT id FROM laisvitor_admin WHERE username = %s AND chave_admin = %s", (username, chave_admin))
-        
         admin = cur.fetchone()
         
         if admin:
-            # Gera um token simples (UUID)
             token = str(uuid.uuid4())
-            ADMIN_SESSIONS[token] = admin[0] # Salva na memória
+            ADMIN_SESSIONS[token] = admin[0]
             return jsonify({"mensagem": "Login realizado", "token": token, "admin_id": admin[0]})
         else:
             return jsonify({"erro": "Usuário ou chave inválidos"}), 401
@@ -168,13 +162,11 @@ def login_admin():
 # ======================================================================
 @app.route('/api/rsvp/verificar', methods=['POST'])
 def rsvp_verificar():
-    """LIA usa isso para checar se o código do convite existe."""
     data = request.json or {}
     codigo = data.get('codigo_convite')
 
     conn = get_db_connection()
     try:
-        # Usa RealDictCursor para retornar dicionário em vez de tupla
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cur.execute("SELECT id, nome_convidado, status_rsvp FROM laisvitor_convidados WHERE codigo_convite = %s", (codigo,))
         convidado = cur.fetchone()
@@ -188,10 +180,9 @@ def rsvp_verificar():
 
 @app.route('/api/rsvp/confirmar', methods=['POST'])
 def rsvp_confirmar():
-    """LIA usa isso para salvar a confirmação."""
     data = request.json or {}
     codigo = data.get('codigo_convite')
-    status = data.get('status_rsvp') # 'Confirmado' ou 'Recusado'
+    status = data.get('status_rsvp')
     qtd_adultos = data.get('qtd_adultos', 0)
     restricoes = data.get('restricoes_alimentares', '')
 
@@ -218,11 +209,9 @@ def rsvp_confirmar():
 # ======================================================================
 @app.route('/api/depoimentos', methods=['GET'])
 def get_depoimentos_publico():
-    """Retorna APENAS os depoimentos 'Aprovado' para o carrossel."""
     conn = get_db_connection()
     try:
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-        # Faz JOIN para pegar o nome do convidado também
         cur.execute("""
             SELECT d.mensagem as texto, c.nome_convidado as nome, TO_CHAR(d.data_criacao, 'DD/MM/YYYY') as data
             FROM laisvitor_depoimentos d
@@ -230,14 +219,12 @@ def get_depoimentos_publico():
             WHERE d.status_aprovacao = 'Aprovado'
             ORDER BY d.data_criacao DESC
         """)
-        depoimentos = cur.fetchall()
-        return jsonify(depoimentos)
+        return jsonify(cur.fetchall())
     finally:
         if conn: conn.close()
 
 @app.route('/api/depoimentos', methods=['POST'])
 def post_depoimento_publico():
-    """Salva um novo depoimento como 'Pendente'."""
     data = request.json or {}
     codigo = data.get('codigo_convite')
     mensagem = data.get('mensagem')
@@ -245,14 +232,12 @@ def post_depoimento_publico():
     conn = get_db_connection()
     try:
         cur = conn.cursor()
-        # 1. Acha o ID do convidado pelo código
         cur.execute("SELECT id FROM laisvitor_convidados WHERE codigo_convite = %s", (codigo,))
         res = cur.fetchone()
         if not res:
             return jsonify({"erro": "Código inválido"}), 404
         convidado_id = res[0]
 
-        # 2. Insere o depoimento
         cur.execute("INSERT INTO laisvitor_depoimentos (convidado_id, mensagem, status_aprovacao) VALUES (%s, %s, 'Pendente')", (convidado_id, mensagem))
         conn.commit()
         return jsonify({"mensagem": "Depoimento enviado para aprovação!"})
@@ -264,13 +249,11 @@ def post_depoimento_publico():
 # ======================================================================
 @app.route('/api/presentes', methods=['GET'])
 def get_presentes_publico():
-    """Lista os presentes ativos para a página 'presentes.html'."""
     conn = get_db_connection()
     try:
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cur.execute("SELECT * FROM laisvitor_presentes WHERE esta_ativo = TRUE ORDER BY id")
         presentes = cur.fetchall()
-        # Converte DECIMAL para float para o JSON não quebrar
         for p in presentes:
             p['valor_cota'] = float(p['valor_cota'])
         return jsonify(presentes)
@@ -281,14 +264,12 @@ def get_presentes_publico():
 # 7. ENDPOINTS - ADMIN (PROTEGIDOS)
 # ======================================================================
 
-# --- 7.1 Dashboard Stats ---
 @app.route('/api/admin/dashboard_stats', methods=['GET'])
 def admin_stats():
     if not check_auth(request): return jsonify({"erro": "Não autorizado"}), 403
     conn = get_db_connection()
     try:
         cur = conn.cursor()
-        # Contagens rápidas
         cur.execute("SELECT COUNT(*) FROM laisvitor_convidados WHERE status_rsvp = 'Confirmado'")
         confirmados = cur.fetchone()[0]
         cur.execute("SELECT COUNT(*) FROM laisvitor_convidados WHERE status_rsvp = 'Pendente'")
@@ -304,7 +285,6 @@ def admin_stats():
     finally:
         if conn: conn.close()
 
-# --- 7.2 Moderação de Depoimentos ---
 @app.route('/api/admin/depoimentos/pendentes', methods=['GET'])
 def admin_get_depoimentos_pendentes():
     if not check_auth(request): return jsonify({"erro": "Não autorizado"}), 403
@@ -325,8 +305,7 @@ def admin_get_depoimentos_pendentes():
 def admin_update_depoimento_status(id):
     if not check_auth(request): return jsonify({"erro": "Não autorizado"}), 403
     data = request.json or {}
-    novo_status = data.get('status') # 'Aprovado' ou 'Rejeitado'
-
+    novo_status = data.get('status')
     conn = get_db_connection()
     try:
         cur = conn.cursor()
@@ -335,21 +314,16 @@ def admin_update_depoimento_status(id):
         return jsonify({"mensagem": f"Depoimento {id} atualizado para {novo_status}"})
     finally:
         if conn: conn.close()
-        
-# --- 7.3 CRUD de Presentes ---
+
 @app.route('/api/presentes/<int:id>', methods=['GET'])
 def get_presente_by_id(id):
-    """Busca um único presente pelo ID para o formulário de edição (já corrigido)."""
     if not check_auth(request): return jsonify({"erro": "Não autorizado"}), 403
     conn = get_db_connection()
     try:
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cur.execute("SELECT * FROM laisvitor_presentes WHERE id = %s", (id,))
         presente = cur.fetchone()
-        
-        if not presente:
-            return jsonify({"erro": "Presente não encontrado"}), 404
-        
+        if not presente: return jsonify({"erro": "Presente não encontrado"}), 404
         presente['valor_cota'] = float(presente['valor_cota'])
         return jsonify(presente)
     finally:
@@ -359,53 +333,34 @@ def get_presente_by_id(id):
 def admin_gerenciar_presentes():
     if not check_auth(request): return jsonify({"erro": "Não autorizado"}), 403
     admin_id = ADMIN_SESSIONS.get(request.headers.get('Authorization', '').replace('Bearer ', '')) 
-    
     conn = get_db_connection()
     try:
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-        
-        # GET: Retorna todos os presentes (ativos e inativos) para a tabela admin
         if request.method == 'GET':
             cur.execute("SELECT * FROM laisvitor_presentes WHERE admin_id = %s ORDER BY id", (admin_id,))
             presentes = cur.fetchall()
-            for p in presentes:
-                 p['valor_cota'] = float(p['valor_cota'])
+            for p in presentes: p['valor_cota'] = float(p['valor_cota'])
             return jsonify(presentes)
-            
-        # POST: Adiciona um novo presente (chamado pelo modal)
         elif request.method == 'POST':
             data = request.json or {}
             nome = data.get('nome_presente')
             valor = data.get('valor_cota')
             url = data.get('imagem_url')
             desc = data.get('descricao')
-            
-            if not nome or not valor:
-                return jsonify({"mensagem": "Nome e valor são obrigatórios."}), 400
-
+            if not nome or not valor: return jsonify({"mensagem": "Nome e valor obrigatórios."}), 400
             cur.execute("""
                 INSERT INTO laisvitor_presentes (admin_id, nome_presente, valor_cota, imagem_url, descricao)
                 VALUES (%s, %s, %s, %s, %s) RETURNING id
             """, (admin_id, nome, valor, url, desc))
             conn.commit()
-            return jsonify({"mensagem": "Presente adicionado com sucesso!", "id": cur.fetchone()[0]})
-
+            return jsonify({"mensagem": "Presente adicionado!", "id": cur.fetchone()[0]})
     finally:
         if conn: conn.close()
 
 @app.route('/api/admin/presentes/<int:id>', methods=['PUT'])
 def admin_update_presente(id):
-    """Atualiza um presente existente."""
     if not check_auth(request): return jsonify({"erro": "Não autorizado"}), 403
     data = request.json or {}
-    nome = data.get('nome_presente')
-    valor = data.get('valor_cota')
-    url = data.get('imagem_url')
-    desc = data.get('descricao')
-    
-    if not nome or not valor:
-        return jsonify({"mensagem": "Nome e valor são obrigatórios."}), 400
-
     conn = get_db_connection()
     try:
         cur = conn.cursor()
@@ -413,7 +368,7 @@ def admin_update_presente(id):
             UPDATE laisvitor_presentes 
             SET nome_presente = %s, valor_cota = %s, imagem_url = %s, descricao = %s
             WHERE id = %s
-        """, (nome, valor, url, desc, id))
+        """, (data.get('nome_presente'), data.get('valor_cota'), data.get('imagem_url'), data.get('descricao'), id))
         conn.commit()
         return jsonify({"mensagem": "Presente atualizado com sucesso!"})
     finally:
@@ -421,55 +376,34 @@ def admin_update_presente(id):
 
 @app.route('/api/admin/presentes/<int:id>/status', methods=['PUT'])
 def admin_toggle_presente_status(id):
-    """Ativa/Desativa um presente."""
     if not check_auth(request): return jsonify({"erro": "Não autorizado"}), 403
     data = request.json or {}
-    new_status = data.get('status') # true/false
-
     conn = get_db_connection()
     try:
         cur = conn.cursor()
-        cur.execute("UPDATE laisvitor_presentes SET esta_ativo = %s WHERE id = %s", (new_status, id))
+        cur.execute("UPDATE laisvitor_presentes SET esta_ativo = %s WHERE id = %s", (data.get('status'), id))
         conn.commit()
-        return jsonify({"mensagem": "Status do presente alterado."})
+        return jsonify({"mensagem": "Status alterado."})
     finally:
         if conn: conn.close()
 
-# --- 7.4 Gerenciamento de Convidados (CORREÇÕES AQUI) ---
-
-# NOVO ENDPOINT: Para o botão Editar carregar os dados do convidado.
 @app.route('/api/convidados/<int:id>', methods=['GET'])
 def get_convidado_by_id(id):
-    """Busca um único convidado pelo ID para o formulário de edição."""
     if not check_auth(request): return jsonify({"erro": "Não autorizado"}), 403
     conn = get_db_connection()
     try:
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-        # Seleciona todos os campos importantes para edição
         cur.execute("SELECT id, nome_convidado, codigo_convite, status_rsvp, qtd_adultos, restricoes_alimentares FROM laisvitor_convidados WHERE id = %s", (id,))
         convidado = cur.fetchone()
-        
-        if not convidado:
-            return jsonify({"erro": "Convidado não encontrado"}), 404
-        
+        if not convidado: return jsonify({"erro": "Convidado não encontrado"}), 404
         return jsonify(convidado)
     finally:
         if conn: conn.close()
 
-# NOVO ENDPOINT: Para salvar as alterações do convidado.
 @app.route('/api/admin/convidados/<int:id>', methods=['PUT'])
 def admin_update_convidado(id):
-    """Atualiza um convidado existente."""
     if not check_auth(request): return jsonify({"erro": "Não autorizado"}), 403
     data = request.json or {}
-    nome = data.get('nome_convidado')
-    status = data.get('status_rsvp')
-    qtd_adultos = data.get('qtd_adultos')
-    restricoes = data.get('restricoes_alimentares', '')
-    
-    if not nome or not status:
-        return jsonify({"mensagem": "Nome e Status são obrigatórios."}), 400
-
     conn = get_db_connection()
     try:
         cur = conn.cursor()
@@ -477,61 +411,61 @@ def admin_update_convidado(id):
             UPDATE laisvitor_convidados 
             SET nome_convidado = %s, status_rsvp = %s, qtd_adultos = %s, restricoes_alimentares = %s
             WHERE id = %s
-        """, (nome, status, qtd_adultos, restricoes, id))
+        """, (data.get('nome_convidado'), data.get('status_rsvp'), data.get('qtd_adultos'), data.get('restricoes_alimentares', ''), id))
         conn.commit()
         return jsonify({"mensagem": "Convidado atualizado com sucesso!"})
     finally:
         if conn: conn.close()
         
-# ENDPOINT EXISTENTE: Para listar e adicionar convidados
 @app.route('/api/admin/convidados', methods=['GET', 'POST'])
 def admin_gerenciar_convidados():
     if not check_auth(request): return jsonify({"erro": "Não autorizado"}), 403
     admin_id = ADMIN_SESSIONS.get(request.headers.get('Authorization', '').replace('Bearer ', ''))
-    
     conn = get_db_connection()
     try:
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-        
-        # GET: Retorna todos os convidados para a tabela admin
         if request.method == 'GET':
             cur.execute("SELECT id, codigo_convite, nome_convidado, status_rsvp, qtd_adultos, restricoes_alimentares FROM laisvitor_convidados WHERE admin_id = %s ORDER BY nome_convidado", (admin_id,))
             return jsonify(cur.fetchall())
-            
-        # POST: Adiciona um novo convidado
         elif request.method == 'POST':
             data = request.json or {}
             nome = data.get('nome_convidado')
-            # Gera um código aleatório de 6 dígitos
             codigo = str(uuid.uuid4())[:6].upper()
-            
-            if not nome:
-                return jsonify({"mensagem": "Nome é obrigatório."}), 400
-
+            if not nome: return jsonify({"mensagem": "Nome é obrigatório."}), 400
             cur.execute("""
                 INSERT INTO laisvitor_convidados (admin_id, nome_convidado, codigo_convite) 
                 VALUES (%s, %s, %s) RETURNING id, codigo_convite
             """, (admin_id, nome, codigo))
             conn.commit()
-            
-            novo_convidado_tuple = cur.fetchone()
-
-            if novo_convidado_tuple:
-                novo_id = novo_convidado_tuple[0]
-                novo_codigo = novo_convidado_tuple[1]
-                return jsonify({"mensagem": "Convidado criado", "id": novo_id, "codigo": novo_codigo})
-            else:
-                return jsonify({"mensagem": "Erro interno ao obter ID do convidado."}), 500
-            
+            novo_convidado = cur.fetchone()
+            return jsonify({"mensagem": "Convidado criado", "id": novo_convidado[0], "codigo": novo_convidado[1]})
     finally:
         if conn: conn.close()
 
 
 # ======================================================================
+# 8. ROTAS DO FRONTEND (SERVIR O HTML E ARQUIVOS ESTÁTICOS)
+# ======================================================================
+
+@app.route('/')
+def index():
+    """Rota da página inicial: carrega o index.html"""
+    # Procura o arquivo 'index.html' na mesma pasta onde o app.py está rodando
+    return send_from_directory('.', 'index.html')
+
+@app.route('/<path:filename>')
+def serve_static_files(filename):
+    """
+    Rota genérica para servir arquivos estáticos 
+    que estejam na raiz (ex: casal.png, estilo.css, js, etc.)
+    """
+    return send_from_directory('.', filename)
+
+# ======================================================================
 # INICIALIZAÇÃO
 # ======================================================================
 if __name__ == '__main__':
-    # Tenta configurar o DB na inicialização local
     setup_database()
     port = int(os.environ.get("PORT", 5000))
+    # debug=False recomendado para produção, mas True ajuda no debug inicial
     app.run(host='0.0.0.0', port=port, debug=True)
